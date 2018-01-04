@@ -54,6 +54,36 @@ class GaoNet(nn.Module):
         return nm
 
 
+class autoEncoder(nn.Module):
+    """An auto encoder contains both encoder and decoder"""
+    def __init__(self, enlyr, delyr):
+        super(autoEncoder, self).__init__()
+        assert enlyr[0] == delyr[-1] and enlyr[-1] == delyr[0]
+        assert len(enlyr) > 1 and len(delyr) > 1  # cannot be too simple
+        self.enlyr = enlyr
+        self.delyr = delyr
+        nenlyr = len(enlyr)
+        ndelyr = len(delyr)
+        self.enlayers = []
+        self.delayers = []
+        for i in range(nenlyr - 1):
+            self.enlayers.append(nn.Linear(enlyr[i], enlyr[i + 1]))
+            """
+            if i < nenlyr - 1:
+                self.enlayers.append(nn.LeakyReLU(0.2))
+            """
+        for i in range(ndelyr - 1):
+            self.delayers.append(nn.Linear(delyr[i], delyr[i + 1]))
+            if i < ndelyr - 1:
+                self.delayers.append(nn.LeakyReLU(0.2))
+        self.encoder = nn.Sequential(OrderedDict([(str(i), lyr) for i, lyr in enumerate(self.enlayers)]))
+        self.decoder = nn.Sequential(OrderedDict([(str(i), lyr) for i, lyr in enumerate(self.delayers)]))
+
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
+
 
 def plotError(trainerror, testerror, freq, fnm=None, merge=False, show=True, txtname=None, mdlname=None, fun=None):
     # make prediction by plot
@@ -126,6 +156,52 @@ def modelLoader(model, name='model', reScale=False, cuda=False):
         return predy
 
     return fun
+
+
+def encoderLoader(fnm, name='model', reScale=True, cuda=False):
+    """Read the autoEncoder and return two functions"""
+    with open(model, 'rb') as f:
+        tmp = pickle.load(f)
+    mdl = tmp[name].cpu()
+    if reScale:
+        xScale = tmp.get('xScale', None)
+    else:
+        xScale = None
+    if cuda:
+        mdl.cuda()
+    # create the function
+    def encoder(x):
+        '''given x, return y, x can be batch or single.'''
+        xdim = x.ndim
+        if xdim == 1:
+            x = np.expand_dims(x, axis=0)  # make it 1 by X
+        if xScale is not None:
+            x = stdify(x, xScale[0], xScale[1])
+        # convert and feed
+        feedx = Variable(torch.from_numpy(x)).float()
+        if cuda:
+            feedx.cuda()
+        predy = mdl.encoder(feedx).cpu().data.numpy()
+        if xdim == 1:
+            predy = np.squeeze(predy, axis=0)
+        return predy
+
+    def decoder(x):
+        xdim = x.ndim
+        if xdim == 1:
+            x = np.expand_dims(x, axis=0)  # make it 1 by X
+        # convert and feed
+        feedx = Variable(torch.from_numpy(x)).float()
+        if cuda:
+            feedx.cuda()
+        predy = mdl.decoder(feedx).cpu().data.numpy()
+        if xdim == 1:
+            predy = np.squeeze(predy, axis=0)
+        if xScale is not None:
+            predy = destdify(predy, xScale[0], xScale[1])
+        return predy
+
+    return encoder, decoder
 
 
 def modelLoaderV2(model, cudafy=False):

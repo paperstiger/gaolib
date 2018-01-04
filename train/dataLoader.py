@@ -30,6 +30,23 @@ def checkstd(args, tol=1e-3):
         raise NotImplementedError
 
 
+class unaryFactory(Dataset):
+    """Factory for only one variable"""
+    def __init__(self):
+        self.numData = 0
+        self._data = None
+        raise NotImplementedError
+
+    def shuffle(self):
+        np.random.shuffle(self._data)
+
+    def __len__(self):
+        return self.numData
+
+    def __getitem__(self, idx):
+        return self._data[idx]
+
+
 class Factory(Dataset):
     """For factory"""
     def __init__(self):
@@ -73,6 +90,43 @@ class subFactory(Dataset):
 
     def __getitem__(self, idx):
         return self.factory[idx]
+
+
+class unaryKeyFactory(unaryFactory):
+    """A factory that contains only one variable"""
+    def __init__(self, fnm, xnm, xfun=None, normalize=True):
+        if isinstance(fnm, str):
+            if '.npz' in fnm or '.npy' in fnm:
+                tmp = np.load(fnm)
+            elif '.pkl' in fnm:
+                tmp = pkl.load(open(fnm, 'rb'))
+            else:
+                raise NotImplementedError
+        else:
+            if callable(getattr(fnm, 'keys', None)):
+                tmp = fnm
+            else:
+                if isinstance(fnm, np.ndarray):
+                    tmp = fnm
+                else:
+                    raise NotImplementedError
+        if xfun is not None:
+            self._data = xfun(tmp[xnm])
+        else:
+            self._data = tmp[xnm]
+        self.numData = len(self._data)
+        if normalize:
+            xmean, xstd = np.mean(self._data, axis=0, keepdims=True), np.std(self._data, axis=0, keepdims=True)
+            checkstd(xstd, tol=1e-3)
+            self._realdata = self._data.copy()
+        else:
+            xmean, xstd = 0, 1
+            self._realdata = self._data
+        self._data = (self._data - xmean) / xstd
+        self._xmean, self._xstd = xmean, xstd
+        self._data = self._data.astype(np.float32)  # convert to float
+        self.xmean, self.xstd = self._xmean, self._xstd
+        self.xname = xnm  # actually useless
 
 
 class keyFactory(Factory):

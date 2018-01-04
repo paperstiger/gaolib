@@ -49,6 +49,7 @@ class trainer(object):
         self.enableTimer = kwargs.get('enabletimer', 1)
         self.timeCheckFreq = kwargs.get('timecheckfreq', 60)  # check every 60 seconds
         self.progressFactor = kwargs.get('progressFactor', 0.95)
+        self.unary = kwargs.get('unary', 0)  # by default not unary
         # others such as cuda
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr)
 
@@ -72,8 +73,12 @@ class trainer(object):
             print '\nEntering Epoch %d ' % epoch
             for idx, batch_data in enumerate(self.trainLder):
                 self.optimizer.zero_grad()
-                feedy = Variable(batch_data[self.yname], requires_grad=False).float().cuda()
-                feedx = Variable(batch_data[self.xname], requires_grad=False).float().cuda()
+                if self.unary == 0:
+                    feedy = Variable(batch_data[self.yname], requires_grad=False).float().cuda()
+                    feedx = Variable(batch_data[self.xname], requires_grad=False).float().cuda()
+                else:
+                    feedy = Variable(batch_data, requires_grad=False).float().cuda()
+                    feedx = feedy
                 predy = self.net(feedx)
                 trainloss = self.loss(predy, feedy)
                 trainloss.backward()
@@ -156,12 +161,18 @@ class trainer(object):
         namex, namey = self.xname, self.yname
         nData = self.testLder.getNumData()
         for idx, batch_data in enumerate(dL):
-            feedy = Variable(batch_data[namey], volatile=True).cuda()
-            feedx = Variable(batch_data[namex], volatile=True).cuda()
+            if self.unary == 0:
+                lenData = len(batch_data[namex])
+                feedy = Variable(batch_data[namey], volatile=True).cuda()
+                feedx = Variable(batch_data[namex], volatile=True).cuda()
+            else:
+                lenData = len(batch_data)
+                feedx = Variable(batch_data, volatile=True).cuda()
+                feedy = feedx
             predy = self.net(feedx)
-            testloss = self.loss(predy, feedy)
+            testloss = self.testloss(predy, feedy)
             testloss = testloss.cpu().data.numpy()
-            rst.append(testloss * len(batch_data[namex]))
+            rst.append(testloss * lenData)
         rst = np.array(rst)
         return np.sum(rst, axis=0)/nData  # we get a row vector, I believe
 
