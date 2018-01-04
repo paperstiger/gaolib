@@ -15,6 +15,7 @@ We are doing function level
 from multiprocessing import Manager, Process
 import copy
 from functools import partial
+import time
 
 
 class monteCarlo(object):
@@ -45,9 +46,13 @@ class mulProcess(object):
         self.return_dict = manager.dict()
         self.nProcess = nProcess
 
-    def run(self):
+    def run(self, **kwargs):
         allproc = [Process(target=mc, args=(i, self.return_dict)) for i, mc in enumerate(self.MCs)]
-        for proc in allproc: proc.start()
-        for proc in allproc: proc.join()
+        for proc in allproc:
+            proc.start()
+            if 'wait' in kwargs:
+                time.sleep(kwargs['wait'])
+        for proc in allproc:
+            proc.join()
         results = [self.return_dict[i] for i in range(self.nProcess)]
         return results
