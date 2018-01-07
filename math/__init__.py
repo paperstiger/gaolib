@@ -5,5 +5,5 @@
 # Copyright © 2017 Gao Tang <gt70@duke.edu>
 #
 # Distributed under terms of the MIT license.
-from gradient import gradNorm
+from gradient import gradNorm, verboseGradNorm
 from local import Query

@@ -17,6 +17,7 @@ try:
     import cPickle as pkl
 except:
     import pickle as pickle
+import json
 
 
 def ddctParse(fnm):
@@ -47,3 +48,23 @@ def ddctSave(fnm, arr, pklmode=False):
     else:
         with open(fnm, 'wb') as f:
             pkl.dump(arr, f)
+
+
+def getJsonConfig(fnm):
+    """Parse a json file as a dict"""
+    with open(fnm) as f:
+        return json.load(f)
+
+
+def assignModule(module, dct):
+    """Assign values in dict to the module"""
+    try:
+        [setattr(module, key, v) for k, v in dct.iteritems()]
+    except:
+        [setattr(module, key, v) for k, v in dct.items()]
+
+
+def assignModuleByJson(module, fnm):
+    """Change contents of a module by json file"""
+    dct = getJsonConfig(fnm)
+    assignModule(module, dct)

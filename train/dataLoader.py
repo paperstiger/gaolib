@@ -84,6 +84,10 @@ class subFactory(Dataset):
         if hasattr(factory, 'ymean'):
             self.ymean = factory.ymean
             self.ystd = factory.ystd
+        if hasattr(factory, '_xname'):
+            self._xname = factory._xname
+        if hasattr(factory, '_yname'):
+            self._yname = factory._yname
 
     def __len__(self):
         return self.finalind - self.startind
@@ -126,7 +130,7 @@ class unaryKeyFactory(unaryFactory):
         self._xmean, self._xstd = xmean, xstd
         self._data = self._data.astype(np.float32)  # convert to float
         self.xmean, self.xstd = self._xmean, self._xstd
-        self.xname = xnm  # actually useless
+        self._xname = xnm  # actually useless
 
 
 class keyFactory(Factory):
@@ -309,6 +313,10 @@ class dataLoader(DataLoader):
         if hasattr(dtset, 'ymean'):
             self.ymean = dtset.ymean
             self.ystd = dtset.ystd
+        if hasattr(dtset, '_xname'):
+            self._xname = dtset._xname
+        if hasattr(dtset, '_yname'):
+            self._yname = dtset._yname
 
     def getNumData(self):
         return self.dtset.__len__()  # number of data, since len is returning # batches

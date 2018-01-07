@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from .common import plotkwargs, getColorCycle
 
 
-def compare(arr, x=None, transpose=False, show=False, **kwargs):
+def compare(arr, x=None, ax=None, transpose=False, show=False, **kwargs):
     """Given a matrix or 3d tensor, do some comparison
 
     arr is 3d tensor or list of 2d array
@@ -55,7 +55,12 @@ def compare(arr, x=None, transpose=False, show=False, **kwargs):
     else:
         nCol = nFeature // nRow + 1
     # create figure
-    fig, axes = plt.subplots(nRow, nCol)
+    if ax is None:
+        fig, axes = plt.subplots(nRow, nCol)
+        tight = True
+    else:
+        axes = ax  # we hope for the good
+        tight = False
     for i in range(nFeature):
         row = i // nCol
         col = i % nCol
@@ -82,7 +87,8 @@ def compare(arr, x=None, transpose=False, show=False, **kwargs):
                         ax.plot(x[j], arr_, **dct)
                     else:
                         ax.plot(x, arr_, **dct)
-    fig.tight_layout()
+    if tight:
+        fig.tight_layout()
     if show:
         plt.show()
     return axes

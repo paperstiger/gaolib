@@ -40,6 +40,10 @@ class trainer(object):
         # for data loading
         self.xname = kwargs.get('xname', 'X')
         self.yname = kwargs.get('yname', 'Y')
+        if hasattr(trainLder, '_xname'):
+            self.xname = trainLder._xname
+        if hasattr(trainLder, '_yname'):
+            self.yname = trainLder._yname
         # for training
         self.numEpoch = kwargs.get('epoch', 10)
         self.lr = kwargs.get('lr', 1e-3)
@@ -74,8 +78,8 @@ class trainer(object):
             for idx, batch_data in enumerate(self.trainLder):
                 self.optimizer.zero_grad()
                 if self.unary == 0:
-                    feedy = Variable(batch_data[self.yname], requires_grad=False).float().cuda()
-                    feedx = Variable(batch_data[self.xname], requires_grad=False).float().cuda()
+                    feedy = Variable(batch_data[self.yname], requires_grad=False).cuda()
+                    feedx = Variable(batch_data[self.xname], requires_grad=False).cuda()
                 else:
                     feedy = Variable(batch_data, requires_grad=False).float().cuda()
                     feedx = feedy
@@ -123,7 +127,7 @@ class trainer(object):
                 print('Last value is %f ' % checkTestError[1])
                 break
             elif trainEnd == 'no improve':
-                print '\nTraining terminated since no progress is made within %d iter' % (testErrorBackStep)
+                print('\nTraining terminated since no progress is made within %d iter' % (testErrorBackStep))
                 break
         # TODO: enable tensorboard
         """

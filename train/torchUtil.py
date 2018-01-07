@@ -14,6 +14,7 @@ import pickle as pickle
 from functools import partial
 import os
 from GAO.pyLib.math.stat import destdify, stdify
+from sklearn import svm
 
 
 class GaoNet(nn.Module):
@@ -158,9 +159,33 @@ def modelLoader(model, name='model', reScale=False, cuda=False):
     return fun
 
 
+def svcLoader(model, name='model', reScale=True):
+    """Load a svm"""
+    with open(model, 'rb') as f:
+        tmp = pickle.load(f)
+    svc = tmp[name]
+    xScale = tmp.get('xScale', None)
+
+    # create the function
+    def fun(x):
+        '''given x, return y, x can be batch or single.'''
+        xdim = x.ndim
+        if xdim == 1:
+            x = np.expand_dims(x, axis=0)  # make it 1 by X
+        if xScale is not None:
+            x = stdify(x, xScale[0], xScale[1])
+        # convert and feed
+        predy = svc.predict(x)
+        if xdim == 1:
+            predy = predy[0]
+        return predy
+
+    return fun
+
+
 def encoderLoader(fnm, name='model', reScale=True, cuda=False):
     """Read the autoEncoder and return two functions"""
-    with open(model, 'rb') as f:
+    with open(fnm, 'rb') as f:
         tmp = pickle.load(f)
     mdl = tmp[name].cpu()
     if reScale:
