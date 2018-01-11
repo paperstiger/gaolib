@@ -32,6 +32,8 @@ class Query(object):
     def getInd(self, x0):
         if x0.ndim == 1:
             x0 = np.expand_dims(x0, axis=0)
+        if x0.dtype != self.A.dtype:
+            x0 = x0.astype(self.A.dtype)
         result, dis = self.flann.nn_index(x0, self.querynum, checks=self.checks)
         return {'ind': np.squeeze(result), 'dist': np.squeeze(dis)}
 

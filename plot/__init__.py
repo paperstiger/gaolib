@@ -11,4 +11,9 @@
 """
 from common import get3dAxis, getColorCycle, getIndAlongAxis
 from plot3d import  plot, scatter, set_axes_equal
-from compare import compare
+from compare import compare, compareXYZ
+import matplotlib.pyplot as plt
+
+
+def show():
+    plt.show()

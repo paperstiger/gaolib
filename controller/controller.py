@@ -11,6 +11,9 @@ controller.py
 Basic class necessary for a controller
 """
 import numpy as np
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class controller(object):
@@ -96,4 +99,5 @@ class feedForwardBackward(controller):
         xref, uref = self.forward.getxu(t)
         uback = self.backward(t, x - xref)
         u = uref + uback
+        logger.debug('xref {}\n dx {}\n uref {} uback {} u {}'.format(xref, x - xref, uref, uback, u))
         return self.trim(u)

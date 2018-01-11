@@ -138,23 +138,54 @@ def modelLoader(model, name='model', reScale=False, cuda=False):
         mdl.cuda()
 
     # create the function
-    def fun(x):
+    def fun(x, batch_size=-1):
         '''given x, return y, x can be batch or single.'''
-        xdim = x.ndim
-        if xdim == 1:
-            x = np.expand_dims(x, axis=0)  # make it 1 by X
-        if xScale is not None:
-            x = stdify(x, xScale[0], xScale[1])
-        # convert and feed
-        feedx = Variable(torch.from_numpy(x.astype(np.float32)))
-        if cuda:
-            feedx.cuda()
-        predy = mdl(feedx).cpu().data.numpy()
-        if yScale is not None:
-            predy = destdify(predy, yScale[0], yScale[1])
-        if xdim == 1:
-            predy = np.squeeze(predy, axis=0)
-        return predy
+        if batch_size == -1:
+            xdim = x.ndim  # detect which case to use
+            if xdim == 1:
+                x = np.expand_dims(x, axis=0)  # make it 1 by X
+            if xScale is not None:
+                x = stdify(x, xScale[0], xScale[1])
+            # convert and feed
+            feedx = Variable(torch.from_numpy(x.astype(np.float32)), volatile=True)
+            if cuda:
+                feedx = feedx.cuda()
+            predy = mdl(feedx).cpu().data.numpy()
+            if yScale is not None:
+                predy = destdify(predy, yScale[0], yScale[1])
+            if xdim == 1:
+                predy = np.squeeze(predy, axis=0)
+            return predy
+        else:  # we have to do it in batch to save memory or other stuff
+            assert batch_size > 0
+            nData = len(x)
+            if isinstance(batch_size, float) and batch_size < 1.0:
+                batchsize = int(batch_size * nData)
+            else:
+                batchsize = batch_size
+            # detect size of output
+            if yScale is not None:
+                dimy = yScale[0].shape[1]  # since it is 1 by dimy
+            else:
+                feedx = Variable(torch.from_numpy(x[:1]).float(), volatile=True)
+                if cuda:
+                    feedx = feedx.cuda()
+                predy = mdl(feedx).cpu().data.numpy()
+                dimy = predy.shape[1]
+            # allocate space
+            predy = np.zeros((nData, dimy), dtype=np.float32)
+            loopN = nData // batchsize + 1
+            if nData % batchsize == 0:
+                loopN -= 1
+            for i in range(loopN):
+                ind0, indf = batchsize*i, batchsize*(i + 1)
+                if indf > nData:
+                    indf = nData
+                tmpy = fun(x[ind0:indf])
+                predy[ind0:indf] = tmpy
+            # if yScale is not None:
+            #     predy = destdify(predy, yScale[0], yScale[1])
+            return predy
 
     return fun
 

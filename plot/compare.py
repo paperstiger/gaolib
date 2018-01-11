@@ -13,7 +13,7 @@ Extensively used when I want to compare several samples
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from .common import plotkwargs, getColorCycle
+from .common import plotkwargs, getColorCycle, get3dAxis, getIndAlongAxis, scatterkwargs
 
 
 def compare(arr, x=None, ax=None, transpose=False, show=False, **kwargs):
@@ -92,3 +92,48 @@ def compare(arr, x=None, ax=None, transpose=False, show=False, **kwargs):
     if show:
         plt.show()
     return axes
+
+
+def compareXYZ(arr, ax=None, transpose=False, d3=False, scatter=False, show=False, **kwargs):
+    """hybrid of compare, and plot. Assume we have a cat by N by dim dataset, we want to select a few col/row to plot in 2d/3d"""
+    colors = getColorCycle()
+    assert isinstance(arr, np.ndarray)
+    assert arr.ndim == 3
+    nCat = arr.shape[0]
+    if transpose:
+        alongaxis = 1
+    else:
+        alongaxis = 2
+    # create figure
+    if ax is None:
+        if d3:
+            fig, ax = get3dAxis()
+        else:
+            fig, ax = plt.subplots()
+    # extract values
+    xind = kwargs.get('xind', 0)
+    yind = kwargs.get('xind', 1)
+    # get values to plot
+    tx = getIndAlongAxis(arr, alongaxis, xind)
+    ty = getIndAlongAxis(arr, alongaxis, yind)
+    if d3:
+        zind = kwargs.get('zind', 2)  # get which column we should focus
+        tz = getIndAlongAxis(arr, alongaxis, zind)
+    # now we get a bunch of cat by N matrix, we plot cat by cat
+    for j in range(nCat):
+        dct = {key: item[j] for key, item in kwargs.iteritems() if j in item}
+        if 'color' not in dct and 'c' not in dct:
+            dct['color'] = colors[j % len(colors)]  # avoid overflow
+        if d3:
+            if scatter:
+                ax.scatter(tx[j], ty[j], tz[j], **dct)
+            else:
+                ax.plot(tx[j], ty[j], tz[j], **dct)
+        else:
+            if scatter:
+                ax.scatter(tx[j], ty[j], **dct)
+            else:
+                ax.plot(tx[j], ty[j], **dct)
+    if show:
+        plt.show()
+    return ax

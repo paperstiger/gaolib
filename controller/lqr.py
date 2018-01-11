@@ -15,6 +15,11 @@ import numpy as np
 from controller import linearFeedbackController, feedForwardBackward, openLoopController
 from control import care, dare
 from trajectory import zeroOrderHolder
+import logging
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def tvlqr(A, B, Q, R, F):
