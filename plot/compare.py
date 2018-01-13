@@ -77,7 +77,14 @@ def compare(arr, x=None, ax=None, transpose=False, show=False, **kwargs):
                     arr_ = arr[j][i, :]
                 else:
                     arr_ = arr[j][:, i]
-                dct = {key: item[j] for key, item in kwargs.iteritems() if j in item}
+                dct = dict()
+                for key, item in kwargs.iteritems():
+                    if isinstance(item, dict):
+                        if j in item:
+                            dct[key] = item[j]
+                    elif key in plotkwargs:
+                        dct[key] = item
+                # dct = {key: item[j] for key, item in kwargs.iteritems() if j in item}
                 if 'color' not in dct and 'c' not in dct:
                     dct['color'] = colors[j % len(colors)]  # avoid overflow
                 if x is None:
@@ -121,7 +128,15 @@ def compareXYZ(arr, ax=None, transpose=False, d3=False, scatter=False, show=Fals
         tz = getIndAlongAxis(arr, alongaxis, zind)
     # now we get a bunch of cat by N matrix, we plot cat by cat
     for j in range(nCat):
-        dct = {key: item[j] for key, item in kwargs.iteritems() if j in item}
+        # updated dct, properties can be set in bunch mode
+        dct = dict()
+        for key, item in kwargs.iteritems():
+            if isinstance(item, dict):
+                if j in item:
+                    dct[key] = item[j]
+            elif key in plotkwargs:
+                dct[key] = item
+        # dct = {key: item[j] for key, item in kwargs.iteritems() if j in item}
         if 'color' not in dct and 'c' not in dct:
             dct['color'] = colors[j % len(colors)]  # avoid overflow
         if d3:

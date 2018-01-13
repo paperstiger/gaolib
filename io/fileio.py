@@ -13,6 +13,7 @@ Useful functions for file io, especially dict of dict type.
 This type is heavily used for clustered training.
 """
 import numpy as np
+import os
 try:
     import cPickle as pkl
 except:
@@ -48,6 +49,16 @@ def ddctSave(fnm, arr, pklmode=False):
     else:
         with open(fnm, 'wb') as f:
             pkl.dump(arr, f)
+
+
+def getLogPath(fnm, debug=False):
+    dirname, filename = os.path.split(fnm)
+    if dirname == '':
+        dirname = '.'
+    if debug:
+        return '%s/logs/%s.log.debug' % (dirname, filename)
+    else:
+        return '%s/logs/%s.log' % (dirname, filename)
 
 
 def getJsonConfig(fnm):

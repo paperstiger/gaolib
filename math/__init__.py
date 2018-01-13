@@ -7,3 +7,4 @@
 # Distributed under terms of the MIT license.
 from gradient import gradNorm, verboseGradNorm
 from local import Query
+from stat import stdify, destdify

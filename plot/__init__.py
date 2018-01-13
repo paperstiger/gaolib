@@ -15,5 +15,5 @@ from compare import compare, compareXYZ
 import matplotlib.pyplot as plt
 
 
-def show():
-    plt.show()
+def show(*args, **kwargs):
+    plt.show(*args, **kwargs)

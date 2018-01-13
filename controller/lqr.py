@@ -18,7 +18,6 @@ from trajectory import zeroOrderHolder
 import logging
 
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -56,7 +55,7 @@ class ABQRLQR(linearFeedbackController):
         if isinstance(G, np.matrix):
             G = np.array(G)
         # check eigenvalues of A-BK
-        print 'Eigen values of care are {}'.format(L)
+        logger.debug('Eigen values of care are {}'.format(L))
         super(ABQRLQR, self).__init__(G, x0, u0, ulb, uub)
 
 
@@ -91,4 +90,7 @@ class trackLQR(feedForwardBackward):
         self.backward.K = self.scheduleK.getObj(t)
         u = super(trackLQR, self).__call__(t, x)
         u = self.trim(u)
+        logger.debug('t = {} x = {} u = {}'.format(t, x, u))
+        # if t == 0.01:
+        #    import pdb; pdb.set_trace()
         return u
