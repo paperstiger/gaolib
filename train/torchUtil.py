@@ -86,30 +86,31 @@ class autoEncoder(nn.Module):
         return x
 
 
-def plotError(trainerror, testerror, freq, fnm=None, merge=False, show=True, txtname=None, mdlname=None, fun=None):
+def plotError(trainerror, testerror, freq, figname=None, merge=False, show=False, txtname=None, mdlname=None, fun=None):
     # make prediction by plot
-    if merge:
-        fig, ax = plt.subplots()
-        axs = [ax, ax]
-        colors = ['b', 'r']
-    else:
-        fig, axs = plt.subplots(2, 1)
-        colors = ['b', 'b']
+    if figname is not None:
+        if merge:
+            fig, ax = plt.subplots()
+            axs = [ax, ax]
+            colors = ['b', 'r']
+        else:
+            fig, axs = plt.subplots(2, 1)
+            colors = ['b', 'b']
     if fun is not None:
         trainerror = fun(trainerror)
         testerror = fun(testerror)
-    axs[0].plot(1+freq*np.arange(len(trainerror)), trainerror, color=colors[0], label='train')
-    axs[1].plot(1+freq*np.arange(len(testerror)), testerror, color=colors[1], label='test')
-    if not merge:
-        axs[0].set_title('mini-batch train error')
-        axs[1].set_title('test error')
-        plt.tight_layout()
-    else:
-        axs[0].legend()
-    if fnm is not None:
-        plt.savefig(fnm)
-    if show:
-        plt.show()
+    if figname is not None:
+        axs[0].plot(1+freq*np.arange(len(trainerror)), trainerror, color=colors[0], label='train')
+        axs[1].plot(1+freq*np.arange(len(testerror)), testerror, color=colors[1], label='test')
+        if not merge:
+            axs[0].set_title('mini-batch train error')
+            axs[1].set_title('test error')
+            plt.tight_layout()
+        else:
+            axs[0].legend()
+        plt.savefig(figname)
+        if show:
+            plt.show()
     if txtname is not None:
         step = len(trainerror)
         step10 = int(0.9 * step)
@@ -226,6 +227,7 @@ def encoderLoader(fnm, name='model', reScale=True, cuda=False):
     if cuda:
         mdl.cuda()
     # create the function
+
     def encoder(x):
         '''given x, return y, x can be batch or single.'''
         xdim = x.ndim

@@ -54,10 +54,11 @@ class trainer(object):
         self.timeCheckFreq = kwargs.get('timecheckfreq', 60)  # check every 60 seconds
         self.progressFactor = kwargs.get('progressFactor', 0.95)
         self.unary = kwargs.get('unary', 0)  # by default not unary
+        self.txtname = kwargs.get('txtname', 'models/record.txt')
         # others such as cuda
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr)
 
-    def train(self, saveName=None):
+    def train(self, saveName=None, threshold=None):
         # record loss for both training and test set
         maxRecordNum = self.numEpoch * len(self.trainLder) // self.recordFreq
         curRecord = 0
@@ -93,6 +94,7 @@ class trainer(object):
                     # get test error
                     errtest = self.getTestLoss()
                     testerror.append(errtest)
+                    curRecord += 1
                     # check if we have decreasing test error
                     if checkTestError is None:
                         checkTestError = (curIter, errtest)
@@ -115,11 +117,14 @@ class trainer(object):
                         if n
                         writer.add_scalar('data/testloss', testerror[curRecord], curIter)
                     """
-                    curRecord += 1
                     print('\rstep {}, train error {}, test error {}'.format(curIter, errtrain, errtest))
                     # check if we have to stop now
                     if testErrorBackStep > 0 and curIter > checkTestError[0] + testErrorBackStep:
                         trainEnd = 'no improve'
+                        break
+                    # check if we have reached threshold
+                    if threshold is not None and self.gtfun(threshold, checkTestError[1]):
+                        trainEnd = 'threshold reached'
                         break
                 curIter += 1
             # check trainEnd
@@ -128,6 +133,9 @@ class trainer(object):
                 break
             elif trainEnd == 'no improve':
                 print('\nTraining terminated since no progress is made within %d iter' % (testErrorBackStep))
+                break
+            elif trainEnd == 'threshold reached':
+                print('\nTraining terminated since threshold has been reached within %d iter' % (testErrorBackStep))
                 break
         # TODO: enable tensorboard
         """
@@ -149,6 +157,12 @@ class trainer(object):
         txtname = os.path.join(glbVar.PRJPATH, 'Script/models/record.txt')
         plotError(trainerror, testerror, recordFreq, pngname, False, show=False, txtname=txtname, mdlname=baseName)
         """
+        if self.txtname is not None and saveName is not None:
+            try:
+                plotError(trainerror, testerror, self.recordFreq, None, False, False, txtname=self.txtname, mdlname=saveName)
+            except:
+                print('error occurs when trying to record training progress')
+                pass
         # we save model and training errors
         if saveName is not None:
             model = {'model': self.net, 'trainerror': trainerror, 'testerror': testerror}
