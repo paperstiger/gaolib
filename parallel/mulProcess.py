@@ -12,10 +12,40 @@ mulProcess.py
 My implementation of a simple class that supports multiprocessing.
 We are doing function level
 """
-from multiprocessing import Manager, Process
+import numpy as np
+from multiprocessing import Manager, Process, RawArray
 import copy
 from functools import partial
 import time
+import pdb
+import sys
+
+
+class ForkedPdb(pdb.Pdb):
+    """A Pdb subclass that may be used
+    from a forked multiprocessing child
+
+    """
+    def interaction(self, *args, **kwargs):
+        _stdin = sys.stdin
+        try:
+            sys.stdin = open('/dev/stdin')
+            pdb.Pdb.interaction(self, *args, **kwargs)
+        finally:
+            sys.stdin = _stdin
+
+
+class sharedNumpy(object):
+    """A wrapper for shared numpy array"""
+    def __init__(self, A):
+        self.dtype = A.dtype
+        self.shape = A.shape
+        self.dtype = np.sctype2char(self.dtype)
+        self.arr = RawArray(self.dtype, A.size)
+        memoryview(self.arr)[:] = A.ravel()
+
+    def numpy(self):  # Pytorch naming convention
+        return np.reshape(np.frombuffer(self.arr, dtype=self.dtype), self.shape)
 
 
 class monteCarlo(object):
@@ -28,8 +58,11 @@ class monteCarlo(object):
 
     def __call__(self, i=None, dct=None):
         self.rst = self.fun(*self.args, **self.kwargs)
+        # ForkedPdb().set_trace()
         if i is not None and dct is not None:
             dct[i] = self.rst
+        else:
+            return self.rst
 
 
 class mulProcess(object):
@@ -54,5 +87,11 @@ class mulProcess(object):
                 time.sleep(kwargs['wait'])
         for proc in allproc:
             proc.join()
-        results = [self.return_dict[i] for i in range(self.nProcess)]
+        results = []
+        for i in range(self.nProcess):
+            try:
+                toappend = self.return_dict[i]
+                results.append(toappend)
+            except:
+                print('Error occurs at %d' % i)
         return results
