@@ -21,7 +21,7 @@ except:
 import json
 
 
-def ddctParse(fnm):
+def ddctParse(fnm, thekey=None):
     """Parse a file that is dict of dict.
     I wish this is faster than pickle
     """
@@ -30,15 +30,22 @@ def ddctParse(fnm):
             return pkl.load(f)
     tmp = np.load(fnm)
     keys = tmp.keys()
-    try:
-        rst = dict()
-        for key in keys:
-            rst[key] = tmp[key].item()
-    except:
-        rst = dict()
-        for key in keys:
-            rst[key] = tmp[key]
-    return rst
+    if thekey is None:  # load all data
+        try:
+            rst = dict()
+            for key in keys:
+                rst[key] = tmp[key].item()
+        except:
+            rst = dict()
+            for key in keys:
+                rst[key] = tmp[key]
+        return rst
+    else:
+        assert thekey in tmp.keys()
+        try:
+            return tmp[thekey].item()
+        except:
+            return tmp[thekey]
 
 
 def ddctSave(fnm, arr, pklmode=False):

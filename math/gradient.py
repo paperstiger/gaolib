@@ -14,6 +14,10 @@ Monte-Carlo like approach and only return the norm.
 """
 import numpy as np
 import pyflann
+import logging
+
+
+logger = logging.getLogger()
 
 
 def gradNorm(x, y, knn=5, dsrate=1):
@@ -46,7 +50,11 @@ def gradNorm(x, y, knn=5, dsrate=1):
         dx = np.linalg.norm(vdx, axis=1)
         vdy = y[index[i, 1:]] - y[index[i, 0]]
         dy = np.linalg.norm(vdy, axis=1)
-        grad[i] = np.mean(dy / dx)  # assume no dx equals 0
+        actv = np.where(dx > 0.01)[0]
+        if len(actv) == 0:
+            logger.error('all neighbors are equal or too close')
+            print('error might occur in gradNorm')
+        grad[i] = np.mean(dy[actv] / dx[actv])  # assume no dx equals 0
     return inds, grad
 
 

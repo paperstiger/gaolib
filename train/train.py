@@ -5,7 +5,7 @@ y = f(x, o)
 where x is the collision trajectory, o is obstacle, and y is another collision-free traj
 We hope we can directly learn the map so a good initial guess can be provided for later use
 """
-import os, sys, time
+import os, sys, time, datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import operator
@@ -58,7 +58,14 @@ class trainer(object):
         # others such as cuda
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr)
 
-    def train(self, saveName=None, threshold=None):
+    def getTestError(self):
+        """Evaluate current model using test set, report average error"""
+        return self.getTestLoss()
+
+    def getTrainError(self):
+        return self.getTestLoss(self.trainLder)
+
+    def train(self, saveName=None, threshold=None, additional=None, ptmode=False):
         # record loss for both training and test set
         maxRecordNum = self.numEpoch * len(self.trainLder) // self.recordFreq
         curRecord = 0
@@ -159,6 +166,10 @@ class trainer(object):
         """
         if self.txtname is not None and saveName is not None:
             try:
+                with open(self.txtname, 'a') as f:
+                    f.write('%s\n' % datetime.datetime.now())
+                    if additional is not None:
+                        f.write('%s\n' % additional)
                 plotError(trainerror, testerror, self.recordFreq, None, False, False, txtname=self.txtname, mdlname=saveName)
             except:
                 print('error occurs when trying to record training progress')
@@ -170,11 +181,18 @@ class trainer(object):
                 model['xScale'] = [self.trainLder.xmean, self.trainLder.xstd]
             if hasattr(self.trainLder, 'ymean'):
                 model['yScale'] = [self.trainLder.ymean, self.trainLder.ystd]
-            with open(saveName, 'wb') as f:
-                pickle.dump(model, f)
+            if ptmode:
+                newName = saveName.replace('.pkl', '.pt')
+                torch.save(model, newName)
+            else:
+                with open(saveName, 'wb') as f:
+                    pickle.dump(model, f)
 
-    def getTestLoss(self):
-        dL = self.testLder
+    def getTestLoss(self, lder=None):
+        if lder is None:
+            dL = self.testLder
+        else:
+            dL = lder
         rst = []
         namex, namey = self.xname, self.yname
         nData = self.testLder.getNumData()

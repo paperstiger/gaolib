@@ -115,20 +115,27 @@ def plotError(trainerror, testerror, freq, figname=None, merge=False, show=False
         step = len(trainerror)
         step10 = int(0.9 * step)
         step20 = int(0.8 * step)
-        train10, test10 = np.mean(trainerror[step10:step]), np.mean(testerror[step10:step])
-        train20, test20 = np.mean(trainerror[step20:step]), np.mean(testerror[step20:step])
+        testerror = np.array(testerror)
+        trainerror = np.array(trainerror)
+        train10, test10 = np.mean(trainerror[step10:step]), np.mean(testerror[step10:step], keepdims=True)
+        train20, test20 = np.mean(trainerror[step20:step]), np.mean(testerror[step20:step], keepdims=True)
+        trainf = trainerror[-1]
+        testf = testerror[-1]
         with open(txtname, 'a') as f:
             f.write('model: {}\n'.format(mdlname))
-            f.write('Last 10 / 20: train {} / {} test {} / {}\n'.format(train10, train20, test10, test20))
+            f.write('Last one / 10 / 20: train {} / {} / {} test {} / {} / {}\n'.format(trainf, train10, train20, testf, test10, test20))
 
 
-def modelLoader(model, name='model', reScale=False, cuda=False):
+def modelLoader(model, name='model', reScale=True, cuda=False, ptmode=False):
     """Given a model name, usually a pickle file, load the model, create a function.
     New argument: reScale, which reads xmean, xstd, umean, ustd from file and properly rescale things
     It returns a function that can be called using !!!RAW!!! data
     """
-    with open(model, 'rb') as f:
-        tmp = pickle.load(f)
+    if ptmode:
+        tmp = torch.load(model)
+    else:
+        with open(model, 'rb') as f:
+            tmp = pickle.load(f)
     mdl = tmp[name].cpu()
     if reScale:
         xScale = tmp.get('xScale', None)

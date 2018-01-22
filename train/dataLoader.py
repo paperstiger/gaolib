@@ -37,7 +37,8 @@ class unaryFactory(Dataset):
         self._data = None
         raise NotImplementedError
 
-    def shuffle(self):
+    def shuffle(self, seed=None):
+        np.random.seed(seed)
         np.random.shuffle(self._data)
 
     def __len__(self):
@@ -57,7 +58,8 @@ class Factory(Dataset):
         self._yname = None
         raise NotImplementedError
 
-    def shuffle(self):
+    def shuffle(self, seed=None):
+        np.random.seed(seed)
         ind = np.arange(self.__len__())
         np.random.shuffle(ind)
         self._xdata, self._ydata = self._xdata[ind], self._ydata[ind]
@@ -94,6 +96,9 @@ class subFactory(Dataset):
 
     def __getitem__(self, idx):
         return self.factory[idx]
+
+    def allitem(self):
+        return self.factory[self.startind:self.finalind]
 
 
 class unaryKeyFactory(unaryFactory):
@@ -279,8 +284,9 @@ class vecKeyFactory(Dataset):
         # element wise normalize
         self._data = [(self._data[i] - self._mean[i])/self._std[i] for i in range(self.nData)]
 
-    def shuffle(self):
+    def shuffle(self, seed=None):
         ind = np.arange(self.__len__())
+        np.random.seed(seed)
         np.random.shuffle(ind)
         for i, dt in enumerate(self._data):
             self._data[i] = dt[ind]

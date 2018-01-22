@@ -37,3 +37,12 @@ def destdify(x, mean, std):
     Recover to original x
     """
     return mean + std * x
+
+
+def l1loss(x, y):
+    z = np.abs(x - y)
+    zz = np.zeros_like(z)
+    zz[z < 1] = 0.5 * z[z < 1]**2
+    zz[z >= 1] = z[z >= 1] - 0.5
+    return zz
+
