@@ -27,7 +27,12 @@ def ddctParse(fnm, thekey=None):
     """
     if '.pkl' in fnm:
         with open(fnm, 'rb') as f:
-            return pkl.load(f)
+            data = pkl.load(f)
+        if thekey is not None:
+            assert thekey in data.keys()
+            return data[thekey]
+        else:
+            return data
     tmp = np.load(fnm)
     keys = tmp.keys()
     if thekey is None:  # load all data
@@ -68,7 +73,7 @@ def getLogPath(fnm, debug=False):
         return '%s/logs/%s.log' % (dirname, filename)
 
 
-def getJsonConfig(fnm):
+def getJson(fnm):
     """Parse a json file as a dict"""
     with open(fnm) as f:
         return json.load(f)

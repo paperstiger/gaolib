@@ -23,7 +23,8 @@ def checkstd(args, tol=1e-3):
     '''Find those data with std < 1e-3, we do not change it'''
     if isinstance(args, list):
         for arg in args:
-            arg[arg < tol] = 1.0
+            if isinstance(arg, np.ndarray):
+                arg[arg < tol] = 1.0
     elif isinstance(args, np.ndarray):
         args[args < tol] = 1.0
     else:
@@ -270,6 +271,7 @@ class vecKeyFactory(Dataset):
         else:  # in this case, we evaluate the function using all data we collected
             self._data = funs(tmp)  # we cannot pass lower-level since we do not know how many we want
         self.numData = len(self._data[0])
+        self._data = [dt.astype(np.float32) for dt in self._data]  # convert to float type
         # we finished loading raw data, now we alternatively normalize those
         if norms is None:
             self._mean = [0 for dt in self._data]

@@ -82,7 +82,7 @@ class trainer(object):
             progressFactor = self.progressFactor
 
         for epoch in range(self.numEpoch):
-            print '\nEntering Epoch %d ' % epoch
+            print('\nEntering Epoch %d ' % epoch)
             for idx, batch_data in enumerate(self.trainLder):
                 self.optimizer.zero_grad()
                 if self.unary == 0:

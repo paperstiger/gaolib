@@ -179,3 +179,21 @@ def set_axes_equal(ax):
     ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
 
+def addSphere(ax, xc, yc, zc, r, elev=10, color='g', alpha=0.2, **kwargs):
+    u = np.linspace(0, 2 * np.pi, 100)
+    v = np.linspace(0, np.pi, 100)
+
+    x = r * np.outer(np.cos(u), np.sin(v)) + xc
+    y = r * np.outer(np.sin(u), np.sin(v)) + yc
+    z = r * np.outer(np.ones(np.size(u)), np.cos(v)) + zc
+    ax.plot_surface(x, y, z, rstride=4, cstride=4, color=color, alpha=alpha, linewidth=0, **kwargs)
+    rot = 80.0 / 180.0 * np.pi
+    a = np.array([-np.sin(elev / 180 * np.pi), 0, np.cos(elev / 180 * np.pi)])
+    b = np.array([0, 1, 0])
+    b = b * np.cos(rot) + np.cross(a, b) * np.sin(rot) + a * np.dot(a, b) * (1 - np.cos(rot))
+    ax.plot(xc + r * np.sin(u), yc + r*np.cos(u), zc,color='k', linestyle = 'dashed')
+    horiz_front = np.linspace(0, np.pi, 100)
+    ax.plot(xc + r * np.sin(horiz_front), yc + r * np.cos(horiz_front), zc, color='k')
+    vert_front = np.linspace(np.pi / 2, 3 * np.pi / 2, 100)
+    ax.plot(xc + r*(a[0] * np.sin(u) + b[0] * np.cos(u)), yc + r*( b[1] * np.cos(u)), zc + r*(a[2] * np.sin(u) + b[2] * np.cos(u)), color='k', linestyle='dashed')
+    ax.plot(xc + r*(a[0] * np.sin(vert_front) + b[0] * np.cos(vert_front)), yc + r*(b[1] * np.cos(vert_front)), zc + r*(a[2] * np.sin(vert_front) + b[2] * np.cos(vert_front)), color='k')
