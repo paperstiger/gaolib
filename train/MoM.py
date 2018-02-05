@@ -66,7 +66,11 @@ class MoMNet(nn.Module):
                     self.mdlsName.append(nm0)
         self.main = nn.Sequential(OrderedDict([(str(i), lyr) for i, lyr in enumerate(self.mdls)]))
         self.EPS = 1.0
-        self.argmax = False
+        self.argmax = True
+
+    @property
+    def numModel(self):
+        return len(self.mdls)
 
     def parameters(self):
         self.clusPara = []

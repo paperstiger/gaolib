@@ -50,6 +50,19 @@ class GaoNet(nn.Module):
                 vb.append(m.bias.data.numpy())
         return {'w': vw, 'b': vb}
 
+    def eval(self, x):
+        assert isinstance(x, np.ndarray)
+        ndim = x.ndim
+        if ndim == 1:
+            inx = Variable(torch.from_numpy(x[np.newaxis, :]).float(), volatile=True)
+        else:
+            inx = Variable(torch.from_numpy(x).float(), volatile=True)
+        y = self.forward(inx).data.numpy()
+        if ndim == 1:
+            return np.squeeze(y, axis=0)
+        else:
+            return y
+
     def __str__(self):
         nm = '_'.join(map(str, self.lyrs))
         return nm
@@ -84,6 +97,13 @@ class autoEncoder(nn.Module):
         x = self.encoder(x)
         x = self.decoder(x)
         return x
+
+
+def recordStep0(testerror, mdlname, txtname):
+    if txtname is None:
+        return
+    with open(txtname, 'a') as f:
+        f.write('model: {}\n initial step {}\n'.format(mdlname, testerror))
 
 
 def plotError(trainerror, testerror, freq, figname=None, merge=False, show=False, txtname=None, mdlname=None, fun=None):
@@ -122,7 +142,6 @@ def plotError(trainerror, testerror, freq, figname=None, merge=False, show=False
         trainf = trainerror[-1]
         testf = testerror[-1]
         with open(txtname, 'a') as f:
-            f.write('model: {}\n'.format(mdlname))
             f.write('Last one / 10 / 20: train {} / {} / {} test {} / {} / {}\n'.format(trainf, train10, train20, testf, test10, test20))
 
 
@@ -131,6 +150,8 @@ def modelLoader(model, name='model', reScale=True, cuda=False, ptmode=False):
     New argument: reScale, which reads xmean, xstd, umean, ustd from file and properly rescale things
     It returns a function that can be called using !!!RAW!!! data
     """
+    if model.endswith('.pt'):
+        ptmode = True
     if ptmode:
         tmp = torch.load(model)
     else:
@@ -269,12 +290,17 @@ def encoderLoader(fnm, name='model', reScale=True, cuda=False):
     return encoder, decoder
 
 
-def modelLoaderV2(model, cudafy=False):
+def modelLoaderV2(model, cudafy=False, ptmode=False):
     """Given a model name, usually a pickle file, load the model. Return a tuple of net and xScale
     It returns the raw Net and corresponding xScale and yScale
     """
-    with open(model, 'rb') as f:
-        tmp = pickle.load(f)
+    if model.endswith('.pt'):
+        ptmode = True
+    if not ptmode:
+        with open(model, 'rb') as f:
+            tmp = pickle.load(f)
+    else:
+        tmp = torch.load(model)
     mdl, xScale, yScale = tmp.get('model', None), tmp.get('xScale', None), tmp.get('yScale', None)
     assert xScale is not None
     if cudafy:

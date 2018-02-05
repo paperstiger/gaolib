@@ -93,3 +93,33 @@ def verboseGradNorm(x, y, knn=5, dsrate=1):
         dy[i] = dy_
         grad[i] = grad_
     return {'index': inds, 'nn': index, 'dx': dx, 'dy': dy, 'grad': grad}
+
+
+def finiteDiff(fun, x, args=(), kwargs={}, f0=None, step=1e-6, method='f'):
+    """
+    Use finite differentiation to estimate gradient or Jacobian at a point x
+
+    f: the function to be differentiated, must be be like y = f(x, args)
+    x: the point to be evaluated, np.ndarray (n,)
+    args(,): additional arguments for f
+    """
+    x0 = np.atleast_1d(x)
+
+    def fun_wrapped(x):
+        f = np.atleast_1d(fun(x, *args, **kwargs))
+        return f
+
+    if f0 is None:
+        f0 = fun_wrapped(x0)
+    else:
+        f0 = np.atleast_1d(f0)
+
+    m = len(f0)
+    n = len(x0)
+    J = np.empty((m, n))
+    for i in range(n):
+        newx = x.copy()
+        newx[i] += step
+        df = fun_wrapped(newx) - f0
+        J[:, i] = df / step
+    return np.squeeze(J)

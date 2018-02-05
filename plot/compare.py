@@ -64,7 +64,10 @@ def compare(arr, x=None, ax=None, transpose=False, show=False, **kwargs):
     for i in range(nFeature):
         row = i // nCol
         col = i % nCol
-        ax = axes[row, col]
+        try:
+            ax = axes[row, col]
+        except:
+            ax = axes[col]
         # plot for each one
         if len(kwargs) == 0 and x is None and isinstance(arr, np.ndarray):  # empty dict and no x information
             if transpose:

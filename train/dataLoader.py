@@ -187,6 +187,8 @@ class keyFactory(Factory):
         self.ymean, self.ystd = self._ymean, self._ystd
         self._xname = xnm
         self._yname = ynm
+        self.xname = self._xname
+        self.yname = self._yname
 
 
 class labelFactory(Factory):
@@ -306,7 +308,7 @@ class dataLoader(DataLoader):
     Slightly different dataLoader from built-in one by PyTorch
     It supports getNumData and negative batch_size(means all)
     """
-    def __init__(self, dtset, batch_size, shuffle):
+    def __init__(self, dtset, batch_size, shuffle=False):
         if batch_size <= 0:
             batch_size = len(dtset)
         self.dtset = dtset

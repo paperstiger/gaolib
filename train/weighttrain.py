@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 """
-Train a neural network to approximate the function, which is 
-y = f(x, o)
-where x is the collision trajectory, o is obstacle, and y is another collision-free traj
-We hope we can directly learn the map so a good initial guess can be provided for later use
+Train a neural network to approximate the function
+
+The loss is scaled, the weight is passed in using vecKeyFactory
 """
 import os, sys, time, datetime
 import numpy as np
@@ -14,60 +13,20 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import Dataset
-from torchUtil import GaoNet, plotError, recordStep0
+from torchUtil import GaoNet, plotError
 from dataLoader import dataLoader
 from tensorboardX import SummaryWriter
-import logging
+from train import trainer, getFileName
 
 
-logger = logging.getLogger(__name__)
-
-
-class trainer(object):
+class weightTrainer(trainer):
     """
     A base class for trainer.
     The user has to provide a trainSet and testSet, a net, a fun for loss, and other setting
     """
     def __init__(self, net, trainLder, testLder, trainloss, testloss=None, gtfun=operator.gt, **kwargs):
-        assert isinstance(net, nn.Module)
-        assert isinstance(trainLder, dataLoader)
-        assert isinstance(testLder, dataLoader)
-        self.net = net
-        self.loss = trainloss
-        if testloss is not None:
-            self.testloss = testloss
-        else:
-            self.testloss = trainloss
-        self.gtfun = gtfun  # in case we do classification
-        self.trainLder = trainLder
-        self.testLder = testLder
-        # for data loading
-        self.xname = kwargs.get('xname', 'X')
-        self.yname = kwargs.get('yname', 'Y')
-        if hasattr(trainLder, '_xname'):
-            self.xname = trainLder._xname
-        if hasattr(trainLder, '_yname'):
-            self.yname = trainLder._yname
-        # for training
-        self.numEpoch = kwargs.get('epoch', 10)
-        self.lr = kwargs.get('lr', 1e-3)
-        self.errorBackStep = kwargs.get('errorbackstep', 1000)
-        self.recordFreq = kwargs.get('recordfreq', 10)
-        # for periodic checking to avoid slow progress
-        self.enableTimer = kwargs.get('enabletimer', 1)
-        self.timeCheckFreq = kwargs.get('timecheckfreq', 60)  # check every 60 seconds
-        self.progressFactor = kwargs.get('progressFactor', 0.95)
-        self.unary = kwargs.get('unary', 0)  # by default not unary
-        self.txtname = kwargs.get('txtname', 'models/record.txt')
-        # others such as cuda
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr)
-
-    def getTestError(self):
-        """Evaluate current model using test set, report average error"""
-        return self.getTestLoss()
-
-    def getTrainError(self):
-        return self.getTestLoss(self.trainLder)
+        trainer.__init__(self, net, trainLder, testLder, trainloss, testloss, gtfun, **kwargs)
+        self.wname = kwargs.get('wname', 'weight')
 
     def train(self, saveName=None, threshold=None, additional=None, ptmode=False):
         # record loss for both training and test set
@@ -85,22 +44,16 @@ class trainer(object):
             nextCheckTime = curtime + self.timeCheckFreq
             progressFactor = self.progressFactor
 
-        # record at entry
-        testerror0 = self.getTestLoss()
-
-        # begin training
         for epoch in range(self.numEpoch):
             print('\nEntering Epoch %d ' % epoch)
             for idx, batch_data in enumerate(self.trainLder):
                 self.optimizer.zero_grad()
-                if self.unary == 0:
-                    feedy = Variable(batch_data[self.yname], requires_grad=False).cuda()
-                    feedx = Variable(batch_data[self.xname], requires_grad=False).cuda()
-                else:
-                    feedy = Variable(batch_data, requires_grad=False).float().cuda()
-                    feedx = feedy
+                feedy = Variable(batch_data[self.yname], requires_grad=False).cuda()
+                feedx = Variable(batch_data[self.xname], requires_grad=False).cuda()
+                weight = Variable(batch_data[self.wname], requires_grad=False).cuda()
+                # forward
                 predy = self.net(feedx)
-                trainloss = self.loss(predy, feedy)
+                trainloss = self.loss(predy, feedy, weight)  # trainloss accept three variables
                 trainloss.backward()
                 self.optimizer.step()
                 if (curIter + 1) % self.recordFreq == 0:
@@ -178,7 +131,6 @@ class trainer(object):
                     f.write('%s\n' % datetime.datetime.now())
                     if additional is not None:
                         f.write('%s\n' % additional)
-                recordStep0(testerror0, saveName, self.txtname)
                 plotError(trainerror, testerror, self.recordFreq, None, False, False, txtname=self.txtname, mdlname=saveName)
             except:
                 print('error occurs when trying to record training progress')
@@ -190,8 +142,6 @@ class trainer(object):
                 model['xScale'] = [self.trainLder.xmean, self.trainLder.xstd]
             if hasattr(self.trainLder, 'ymean'):
                 model['yScale'] = [self.trainLder.ymean, self.trainLder.ystd]
-            if saveName.endswith('.pt'):
-                ptmode = True
             if ptmode:
                 newName = saveName.replace('.pkl', '.pt')
                 torch.save(model, newName)
@@ -205,29 +155,16 @@ class trainer(object):
         else:
             dL = lder
         rst = []
-        namex, namey = self.xname, self.yname
+        namex, namey, namew = self.xname, self.yname, self.wname
         nData = self.testLder.getNumData()
         for idx, batch_data in enumerate(dL):
-            if self.unary == 0:
-                lenData = len(batch_data[namex])
-                feedy = Variable(batch_data[namey], volatile=True).cuda()
-                feedx = Variable(batch_data[namex], volatile=True).cuda()
-            else:
-                lenData = len(batch_data)
-                feedx = Variable(batch_data, volatile=True).cuda()
-                feedy = feedx
+            lenData = len(batch_data[namex])
+            feedy = Variable(batch_data[namey], volatile=True).cuda()
+            feedx = Variable(batch_data[namex], volatile=True).cuda()
+            weight = Variable(batch_data[namew], volatile=True).cuda()
             predy = self.net(feedx)
-            testloss = self.testloss(predy, feedy)
+            testloss = self.testloss(predy, feedy, weight)
             testloss = testloss.cpu().data.numpy()
             rst.append(testloss * lenData)
         rst = np.array(rst)
         return np.sum(rst, axis=0)/nData  # we get a row vector, I believe
-
-
-def getFileName(basename, prename, obj):
-    if obj == 'log':
-        return os.path.join(prename, 'runs', basename)
-    elif obj == 'model':
-        return os.path.join(prename, 'models', basename+'.pkl')
-    elif obj == 'train':
-        return os.path.join(prename, 'gallery', basename+'.png')
