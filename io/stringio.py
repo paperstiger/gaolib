@@ -25,6 +25,9 @@ logger = logging.getLogger(__name__)
 numRe = re.compile(r"[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?")
 
 
-def getNumber(string):
+def getNumber(string, mapfun=None):
     """Parse all numbers from a string"""
-    return numRe.findall(string)
+    if mapfun is None:
+        return numRe.findall(string)
+    else:
+        return map(mapfun, numRe.findall(string))

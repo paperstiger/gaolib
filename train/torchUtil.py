@@ -145,7 +145,37 @@ def plotError(trainerror, testerror, freq, figname=None, merge=False, show=False
             f.write('Last one / 10 / 20: train {} / {} / {} test {} / {} / {}\n'.format(trainf, train10, train20, testf, test10, test20))
 
 
-def modelLoader(model, name='model', reScale=True, cuda=False, ptmode=False):
+def model2cpu(model, name='model', ptmode=False, statedict=False):
+    """
+    Given a model name, convert all necessary stuff into cpu version
+    """
+    if model.endswith('.pt'):
+        ptmode = True
+    if ptmode:
+        tmp = torch.load(model)
+    else:
+        with open(model, 'rb') as f:
+            tmp = pickle.load(f)
+    mdl = tmp[name].cpu()
+    xScale = tmp.get('xScale', None)
+    yScale = tmp.get('yScale', None)
+    if model.endswith('.pt'):
+        newpath = model.replace('.pt', '_cpu.pt')
+    else:
+        newpath = model.replace('.pkl', '_cpu.pt')
+    if model.endswith('.pt'):
+        newname = model.replace('.pt', '_cpu.pt')
+    elif model.endswith('.pkl'):
+        newname = model.replace('.pkl', '_cpu.pt')
+    else:
+        newname = model + '_cpu'
+    if statedict:
+        torch.save({name: mdl.state_dict(), 'xScale': xScale, 'yScale': yScale}, newname)
+    else:
+        torch.save({name: mdl, 'xScale': xScale, 'yScale': yScale}, newname)
+
+
+def modelLoader(model, name='model', reScale=True, cuda=False, ptmode=False, statedict=False, size=None):
     """Given a model name, usually a pickle file, load the model, create a function.
     New argument: reScale, which reads xmean, xstd, umean, ustd from file and properly rescale things
     It returns a function that can be called using !!!RAW!!! data
@@ -157,7 +187,12 @@ def modelLoader(model, name='model', reScale=True, cuda=False, ptmode=False):
     else:
         with open(model, 'rb') as f:
             tmp = pickle.load(f)
-    mdl = tmp[name].cpu()
+    if statedict:
+        assert size is not None
+        mdl = GaoNet(size)  #TODO: automatically extract the network size
+        mdl.load_state_dict(tmp[name])
+    else:
+        mdl = tmp[name]
     if reScale:
         xScale = tmp.get('xScale', None)
         yScale = tmp.get('yScale', None)
@@ -165,6 +200,8 @@ def modelLoader(model, name='model', reScale=True, cuda=False, ptmode=False):
         xScale, yScale = None, None
     if cuda:
         mdl.cuda()
+    else:
+        mdl.cpu()
 
     # create the function
     def fun(x, batch_size=-1):
