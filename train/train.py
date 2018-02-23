@@ -69,7 +69,7 @@ class trainer(object):
     def getTrainError(self):
         return self.getTestLoss(self.trainLder)
 
-    def train(self, saveName=None, threshold=None, additional=None, ptmode=False):
+    def train(self, saveName=None, threshold=None, additional=None, ptmode=False, statedict=False):
         # record loss for both training and test set
         maxRecordNum = self.numEpoch * len(self.trainLder) // self.recordFreq
         curRecord = 0
@@ -185,7 +185,10 @@ class trainer(object):
                 pass
         # we save model and training errors
         if saveName is not None:
-            model = {'model': self.net, 'trainerror': trainerror, 'testerror': testerror}
+            if statedict:
+                model = {'model': self.net.state_dict(), 'trainerror': trainerror, 'testerror': testerror}
+            else:
+                model = {'model': self.net, 'trainerror': trainerror, 'testerror': testerror}
             if hasattr(self.trainLder, 'xmean'):
                 model['xScale'] = [self.trainLder.xmean, self.trainLder.xstd]
             if hasattr(self.trainLder, 'ymean'):

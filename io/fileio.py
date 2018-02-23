@@ -79,6 +79,11 @@ def getJson(fnm):
         return json.load(f)
 
 
+def dumpJson(obj, fnm):
+    with open(fnm, 'w') as f:
+        json.dump(obj, f, indent=4)
+
+
 def assignModule(module, dct):
     """Assign values in dict to the module"""
     try:
