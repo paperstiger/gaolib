@@ -13,6 +13,7 @@ Define global variables being shared across this module
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
 
 
@@ -37,3 +38,14 @@ def getIndAlongAxis(x, axis, ind=0):
     slc = [slice(None)] * len(x.shape)
     slc[axis] = ind
     return x[slc]
+
+
+def setFontSize(SMALL_SIZE=14):
+    """change many font size for better visualization"""
+    matplotlib.rc('font', size=SMALL_SIZE)
+    matplotlib.rc('axes', titlesize=SMALL_SIZE)
+    matplotlib.rc('axes', labelsize=SMALL_SIZE)
+    matplotlib.rc('xtick', labelsize=SMALL_SIZE)
+    matplotlib.rc('ytick', labelsize=SMALL_SIZE)
+    matplotlib.rc('legend', fontsize=SMALL_SIZE)
+    matplotlib.rc('figure', titlesize=SMALL_SIZE)

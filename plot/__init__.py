@@ -9,7 +9,7 @@
 """
 
 """
-from common import get3dAxis, getColorCycle, getIndAlongAxis
+from common import get3dAxis, getColorCycle, getIndAlongAxis, setFontSize
 from plot3d import  plot, scatter, set_axes_equal, addSphere
 from compare import compare, compareXYZ
 import matplotlib.pyplot as plt
