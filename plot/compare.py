@@ -67,7 +67,10 @@ def compare(arr, x=None, ax=None, transpose=False, show=False, **kwargs):
         try:
             ax = axes[row, col]
         except:
-            ax = axes[col]
+            try:
+                ax = axes[col]  # we only have one row
+            except:
+                ax = axes  # only have one figure
         # plot for each one
         if len(kwargs) == 0 and x is None and isinstance(arr, np.ndarray):  # empty dict and no x information
             if transpose:
@@ -81,7 +84,11 @@ def compare(arr, x=None, ax=None, transpose=False, show=False, **kwargs):
                 else:
                     arr_ = arr[j][:, i]
                 dct = dict()
-                for key, item in kwargs.iteritems():
+                try:
+                    iteritems = kwargs.iteritems()
+                except:
+                    iteritems = kwargs.items()  # for Python 3 compatibility
+                for key, item in iteritems:
                     if isinstance(item, dict):
                         if j in item:
                             dct[key] = item[j]
