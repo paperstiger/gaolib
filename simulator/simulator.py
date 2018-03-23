@@ -62,7 +62,7 @@ class simulator(trajPropagate):
         status = 0
         vX, vU = [], []
         vdX = []
-        for stepi in xrange(Nstep):
+        for stepi in range(Nstep):
             curt = self.t0 + stepi * self.dt
             if self.observer is not None:
                 ctrl = self.ctrller(curt, self.observer(state))

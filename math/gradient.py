@@ -13,7 +13,10 @@ Tools for calculating gradients based solely on data.
 Monte-Carlo like approach and only return the norm.
 """
 import numpy as np
-import pyflann
+try:
+    import pyflann
+except:
+    pass
 import logging
 
 

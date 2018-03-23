@@ -8,3 +8,4 @@
 from .gradient import gradNorm, verboseGradNorm, finiteDiff
 from .local import Query
 from .stat import stdify, destdify, l1loss
+from .extnp import blockIndex

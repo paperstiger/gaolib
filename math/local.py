@@ -12,7 +12,10 @@ local.py
 Tools for analyzing local info
 """
 import numpy as np
-import pyflann
+try:
+    import pyflann
+except:
+    pass
 
 
 class Query(object):

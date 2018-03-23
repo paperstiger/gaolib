@@ -51,7 +51,7 @@ def compare(arr, x=None, ax=None, transpose=False, show=False, **kwargs):
     # get subplots
     nRow = int(np.floor(np.sqrt(nFeature)))
     if nFeature % nRow == 0:
-        nCol = nFeature / nRow
+        nCol = nFeature // nRow
     else:
         nCol = nFeature // nRow + 1
     # create figure
