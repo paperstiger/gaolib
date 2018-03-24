@@ -159,7 +159,7 @@ def dumpExpression(savelist, fixvar, moduleName='tmp'):
         if len(arguments) > 0:
             f.write('\n%sdef _%s(self, %s):\n' % (spaces, name, arguments))
         else:
-            f.write('%sdef %s(self):\n' % (spaces, name))
+            f.write('\n%sdef _%s(self):\n' % (spaces, name))
         if len(arguments) > 0:
             if len(fixarguments) > 0:
                 allarguments = arguments + ', ' + fixarguments
