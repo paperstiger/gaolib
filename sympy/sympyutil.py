@@ -125,6 +125,7 @@ def dumpExpression(savelist, fixvar, moduleName='tmp'):
     # step 2, analysis each expression
     lstFreeSymbols = []  # store freesymbols
     lstFixSymbols = []  # store fixsymbols
+    lstFlatten = []
     for i, (name, exp) in enumerate(savelist):
         print('expression %d' % i)
         expsymbols = exp.free_symbols
@@ -137,6 +138,10 @@ def dumpExpression(savelist, fixvar, moduleName='tmp'):
         lstFixSymbols.append(usefixsymbols)
         expsymbols = usefreesymbols + usefixsymbols
         tmp = autowrap(exp, language='C', backend='cython', args=expsymbols, tempdir=usepath)
+        lstFlatten.append(False)
+        if isinstance(exp, sym.Matrix):
+            if exp.shape[1] == 1:
+                lstFlatten[-1] = True
     # step 3, generate a wrapper for the module we desire
     filename = '%s_wrapper_pre.py' % moduleName
     f = open(filename, 'w')
@@ -153,7 +158,7 @@ def dumpExpression(savelist, fixvar, moduleName='tmp'):
     for fixsym in fixSet:
         f.write('%s%sself.%s = 0\n' % (spaces, spaces, fixsym))
     # write functions for those expressions
-    for (name, exp), freesym, fixsym in zip(savelist, lstFreeSymbols, lstFixSymbols):
+    for (name, exp), freesym, fixsym, flat in zip(savelist, lstFreeSymbols, lstFixSymbols, lstFlatten):
         arguments = ', '.join([str(symb) for symb in freesym])
         fixarguments = ', '.join(['self.%s' % symb for symb in fixsym])
         if len(arguments) > 0:
@@ -167,4 +172,7 @@ def dumpExpression(savelist, fixvar, moduleName='tmp'):
                 allarguments = fixarguments
         else:
             allarguments = fixarguments
-        f.write('%s%sreturn %s(%s)\n' % (spaces, spaces, name, allarguments))
+        if flat:
+            f.write('%s%sreturn %s(%s).flatten()\n' % (spaces, spaces, name, allarguments))
+        else:
+            f.write('%s%sreturn %s(%s)\n' % (spaces, spaces, name, allarguments))
