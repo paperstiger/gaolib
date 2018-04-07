@@ -28,7 +28,7 @@ def tvlqr(A, B, Q, R, F):
     vK = [np.zeros((dimu, dimx)) for i in range(n)]
     vP = [np.zeros((dimx, dimx)) for i in range(n + 1)]
     vP[n] = F
-    for i in xrange(n):
+    for i in range(n):
         Ai = A[n - 1 - i]
         Bi = B[n - 1 - i]
         Pip1 = vP[n - i]
@@ -37,7 +37,15 @@ def tvlqr(A, B, Q, R, F):
         K = np.linalg.solve(TBPB, rhs)
         vK[n - 1 - i] = K
         C = Ai - Bi.dot(K)
-        vP[n - 1 - i] = Q + (K.T).dot(R).dot(K) + (C.T).dot(Pip1).dot(C)
+        if isinstance(Q, list):
+            useQ = Q[i]
+        else:
+            useQ = Q
+        if isinstance(R, list):
+            useR = R[i]
+        else:
+            useR = R
+        vP[n - 1 - i] = useQ + (K.T).dot(useR).dot(K) + (C.T).dot(Pip1).dot(C)
     return vK, vP
 
 
@@ -77,7 +85,7 @@ class trackLQR(feedForwardBackward):
         vA = np.zeros((N-1, dimx, dimx))
         vB = np.zeros((N-1, dimx, dimu))
         dt = traj.dt
-        for i in xrange(N - 1):
+        for i in range(N - 1):
             vA[i], vB[i] = sys.getAB(0, traj.X[i], traj.U[i], dt)
         vK, vP = tvlqr(vA, vB, Q, R, F)
         forward = openLoopController(traj, ulb=None, uub=None)
