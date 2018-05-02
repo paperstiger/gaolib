@@ -14,7 +14,6 @@ import pickle as pickle
 from functools import partial
 import os
 from GAO.pyLib.math.stat import destdify, stdify
-from sklearn import svm
 
 
 class GaoNet(nn.Module):

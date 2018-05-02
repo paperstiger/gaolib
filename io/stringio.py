@@ -31,3 +31,8 @@ def getNumber(string, mapfun=None):
         return numRe.findall(string)
     else:
         return map(mapfun, numRe.findall(string))
+
+
+def joinNumber(arr, sign='_'):
+    """Join a list of numbers into a single string."""
+    return sign.join(map(str, arr))

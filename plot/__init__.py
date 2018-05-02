@@ -10,6 +10,8 @@
 
 """
 from .common import get3dAxis, getColorCycle, getIndAlongAxis, setFontSize
+from .common import subplots, savefig, subplots3d
+from .common import alignXAxis, alignYAxis, alignXYAxis
 from .plot3d import  plot, scatter, set_axes_equal, addSphere
 from .compare import compare, compareXYZ
 import matplotlib.pyplot as plt
@@ -18,7 +20,10 @@ import numpy as np
 
 
 def show(*args, **kwargs):
-    plt.show(*args, **kwargs)
+    """For this function, args can only be figures to be tight_layouted."""
+    for arg in args:
+        arg.tight_layout()
+    plt.show(**kwargs)
 
 
 def getSizeFont(size=16):
