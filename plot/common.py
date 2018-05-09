@@ -62,6 +62,7 @@ def savefig(fig, fname=None, dpi=None):
     """Save a figure. If fname and dpi are None, fig is used as the name"""
     matplotlib.rcParams['pdf.fonttype'] = 42
     matplotlib.rcParams['ps.fonttype'] = 42
+    fig.tight_layout()
     if fname is None:
         plt.savefig(fig, dpi=dpi, bbox_inches='tight')
     else:
