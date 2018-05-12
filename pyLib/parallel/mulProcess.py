@@ -67,8 +67,11 @@ class monteCarlo(object):
 
 class mulProcess(object):
     """A class for multi processing"""
-    def __init__(self, fun, lsti, nProcess, *args, **kwargs):
-        assert len(lsti) == nProcess
+    def __init__(self, fun, lsti, nProcess=None, *args, **kwargs):
+        if nProcess is not None:
+            assert len(lsti) == nProcess
+        else:
+            nProcess = len(lsti)
         self.MCs = []
         for i in range(nProcess):
             argsin = [lsti[i]]

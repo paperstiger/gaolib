@@ -38,23 +38,26 @@ class Query(object):
         if x0.dtype != self.A.dtype:
             x0 = x0.astype(self.A.dtype)
         result, dis = self.flann.nn_index(x0, self.querynum, checks=self.checks)
-        return {'ind': np.squeeze(result), 'dist': np.squeeze(dis)}
+        return {'index': np.squeeze(result), 'dist': np.squeeze(dis)}
 
     def query(self, x0):
         return self.getInd(x0)
 
+    def getIndex(self, x0):
+        return self.getInd(x0)['index']
+
     def getA(self, x0):
-        inds = self.getInd(x0)['ind']
+        inds = self.getInd(x0)['index']
         return self.A[inds]
 
     def getB(self, x0):
         if self.B is None:
             raise Exception('B is None.')
-        inds = self.getInd(x0)['ind']
+        inds = self.getInd(x0)['index']
         return self.B[inds]
 
     def getAB(self, x0):
         if self.B is None:
             raise Exception('B is None.')
-        inds = self.getInd(x0)['ind']
+        inds = self.getInd(x0)['index']
         return self.A[inds], self.B[inds]
