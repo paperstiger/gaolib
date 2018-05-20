@@ -12,6 +12,8 @@ stat.py
 Functions associated with statistics
 """
 import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 
 def checkstd(std, tol=1e-3):
@@ -46,3 +48,26 @@ def l1loss(x, y):
     zz[z >= 1] = z[z >= 1] - 0.5
     return zz
 
+
+def getPCA(x, n_components=3, scale=True):
+    """A quick shortcut for performing PCA.
+
+    Parameters
+    ----------
+    x : ndarray, the data to be processed
+    n_components : int, number of components
+    scale : bool, if we apply standard scaler on x
+
+    Returns
+    -------
+    x_proj : ndarray, projected data
+
+    """
+    if scale:
+        x_scaled = StandardScaler().fit_transform(x)
+    else:
+        x_scaled = x
+    pca = PCA(n_components)
+    x_proj = pca.fit_transform(x_scaled)
+    print(pca.explained_variance_ratio_)
+    return x_proj

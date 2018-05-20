@@ -36,10 +36,10 @@ class dynsys(object):
         return Jx, Ju
 
 
-class pendulum(dynsys):
-    """Demo class, the pendulum"""
+class Pendulum(dynsys):
+    """Demo class, the pendulum. We assume gravity is 1"""
     def __init__(self):
-        super(pendulum, self).__init__(2, 1)
+        super(Pendulum, self).__init__(2, 1)
 
     def getDf(self, t, x, u):
         sta = np.sin(x[0])
@@ -48,23 +48,41 @@ class pendulum(dynsys):
         f[1] = u[0] - sta
         return f
 
-    def getJac(obj, t, x, u):
+    def getJac(self, t, x, u):
         """Return Jx and Ju, cts case since dt is unknown"""
-        Jx = np.zeros((obj.dimx, obj.dimx))
-        Ju = np.zeros((obj.dimx, obj.dimu))
+        Jx = np.zeros((self.dimx, self.dimx))
+        Ju = np.zeros((self.dimx, self.dimu))
         cta = np.cos(x[0])
         Jx[0, 1] = 1.0
         Jx[1, 0] = -cta
         Ju[1, 0] = 1
         return Jx, Ju
 
-    def getfg(obj, x):
-        f = np.zeros(obj.dimx)
-        g = np.zeros((obj.dimx, obj.dimu))
+    def getfg(self, x):
+        f = np.zeros(self.dimx)
+        g = np.zeros((self.dimx, self.dimu))
         f[0] = x[1]
         f[1] = -np.sin(x[0])
         g[1, 0] = 1.0
         return f, g
+
+
+class SecondOrderPlanarCar(dynsys):
+    """A second order planar car."""
+    def __init__(self):
+        dynsys.__init__(self, 4, 2)
+
+    def getDf(self, t, x, u):
+        return np.concatenate((x[2:], u))
+
+    def getJac(self, t, x, u):
+        Jx = np.zeros((self.dimx, self.dimx))
+        Ju = np.zeros((self.dimx, self.dimu))
+        Jx[0, 2] = 1.0
+        Jx[1, 3] = 1.0
+        Ju[2, 0] = 1.0
+        Ju[3, 1] = 1.0
+        return Jx, Ju
 
 
 class DubinCar(dynsys):
@@ -112,7 +130,7 @@ class DubinCar(dynsys):
         return Jx, Ju
 
 
-class quadCopter(dynsys):
+class QuadCopter(dynsys):
     """Demo class, for a quadcopter"""
     def __init__(self, quat=False):
         super(quadCopter, self).__init__(12, 4)

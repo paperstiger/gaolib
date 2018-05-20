@@ -15,12 +15,8 @@ import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import Dataset
 from torchUtil import GaoNet, plotError, recordStep0
-from dataLoader import dataLoader
-from tensorboardX import SummaryWriter
-import logging
-
-
-logger = logging.getLogger(__name__)
+from dataLoader import dataLoader, keyFactory, labelFactory, subFactory
+# from tensorboardX import SummaryWriter
 
 
 class trainer(object):
@@ -69,7 +65,7 @@ class trainer(object):
     def getTrainError(self):
         return self.getTestLoss(self.trainLder)
 
-    def train(self, saveName=None, threshold=None, additional=None, ptmode=False, statedict=False):
+    def train(self, saveName=None, threshold=None, additional=None, ptmode=True, statedict=False):
         # record loss for both training and test set
         maxRecordNum = self.numEpoch * len(self.trainLder) // self.recordFreq
         curRecord = 0
@@ -234,3 +230,118 @@ def getFileName(basename, prename, obj):
         return os.path.join(prename, 'models', basename+'.pkl')
     elif obj == 'train':
         return os.path.join(prename, 'gallery', basename+'.png')
+
+
+def genFromDefaultConfig(**kwargs):
+    """Generate a default configuration dict to avoid things."""
+    defaultdict = {
+                "network": [
+                    [1, 1, 1]
+                    ],
+                "neton": [1],
+                "lr": 1e-3,
+                "epoch": 1500,
+                "batch_size": 64,
+                "errorbackstep": 300,
+                "trainsize": 0.8,
+                "recordfreq": 10,
+                "namex": "x",
+                "namey": "y",
+                "outdir": "models",
+                "outname": "y_of_x.pt",
+                'dataname': "data/data.npz"
+                }
+    if kwargs is not None:
+        defaultdict.update(kwargs)
+    return defaultdict
+
+
+def trainOne(config, data, scale_back=True, seed=1994, is_reg_task=True, x0_name='x0'):
+    """Train a network and save it somewhere.
+
+    It handles naive regression and classification task if GaoNet is used.
+    Training hyperparameters are listed in config, which is a dictionary
+    Data is a dictionary, for regression task, it has at least two entries, specified by config
+    For classification task, it has keys like x0/x1, etc. each is another dict that has x0_name as key or ndarray
+
+    Parameters
+    ----------
+    config : dict, containing training parameters
+    data : dict, containing data for training
+    scale_back : bool, if we calculate smooth L1 loss in original scale
+    seed : int, seeder for random
+    is_reg_task : bool, if we are training a regression task instead of classification
+    x0_name : str, the name of x in each cluster when classification task is performed
+
+    """
+    assert isinstance(config['network'], list)
+    if isinstance(config['network'][0], list):
+        network = config['network'][0]
+    else:
+        network = config['network']
+    trainsize = config['trainsize']
+    epoch = config['epoch']
+    lr = config['lr']
+    recordfreq = config['recordfreq']
+    errorbackstep = config['errorbackstep']
+    if is_reg_task:
+        namex = config.get('namex', 'x')
+        namey = config.get('namey', 'y')
+        factory = keyFactory(data, namex, namey)
+        factory.shuffle(seed)
+    else:
+        nCluster = len(data)
+        nameLblPair = [('x%d'%i, i) for i in range(nCluster)]
+        if isinstance(data['x0'], dict):
+            factory = labelFactory(data, nameLblPair, xfun=lambda x: x[x0_name], normalize=True)
+        else:
+            factory = labelFactory(data, nameLblPair, xfun=None, normalize=True)
+        factory.shuffle(seed)
+    trainSet = subFactory(factory, 0.0, trainsize)
+    testSet = subFactory(factory, trainsize, 1.0)
+    batch_size = config['batch_size']
+    outname = os.path.join(config['outdir'], config['outname'])
+    test_batch_size = -1
+    trainLder = dataLoader(trainSet, batch_size=batch_size, shuffle=False)
+    testLder = dataLoader(testSet, batch_size=test_batch_size, shuffle=False)
+    net = GaoNet(network).cuda()
+
+    if is_reg_task:
+        ymean = Variable(torch.from_numpy(factory.ymean).float()).cuda()
+        ystd = Variable(torch.from_numpy(factory.ystd).float()).cuda()
+        l1loss = torch.nn.SmoothL1Loss(reduce=False)
+
+        # define the loss function for trajectory regression uisng smooth l1 loss
+        def testRegLoss(predy, feedy):
+            y1 = predy * ystd
+            y2 = feedy * ystd
+            lossy1y2 = l1loss(y1, y2)
+            loss = torch.mean(lossy1y2)
+            return loss
+            if scale_back:
+                testloss = testLoss
+            else:
+                testloss = l1loss
+
+        trner = trainer(net, trainLder, testLder, testRegLoss,
+                    epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep)
+    else:
+        celoss = torch.nn.CrossEntropyLoss()
+
+        # define the loss function for classification using cross entropy
+        def testClassifyLoss(predy, feedy):
+            """Return not only the loss but also accuracy."""
+            loss1 = celoss(predy, feedy)
+            maxs_x, indices_x = torch.max(predy, dim=1)  # find max along row
+            correct = torch.eq(feedy, indices_x)
+            correct = correct.float()
+            accuracy = torch.mean(correct)
+            return torch.cat((loss1, accuracy))
+
+        def greater(arg1, arg2):
+            return arg1[1] < arg2[1]
+
+        trner = trainer(net, trainLder, testLder, celoss, testloss=testClassifyLoss, gtfun=greater,
+                    epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep)
+
+    trner.train(outname, ptmode=True)

@@ -26,6 +26,7 @@ setup(
             'control>=0.7.0',
             'scipy>=1.0.0',
             'matplotlib>=1.13.0',
-            'sympy>=1.5.0'
+            'sympy>=1.0.0',
+            'sklearn>=0.15.0'
         ],
 )

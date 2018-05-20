@@ -96,7 +96,6 @@ class interpTrajectory(trajectory):
             return x, u
         else:
             if not self.exceedTf:
-                print 'Warning: time {} is not within bound [{}, {}] at {}'.format(t, self.vt[0], self.vt[-1], __file__)
                 self.exceedTf = True
             if t >= self.vt[-1]:
                 if self.tfFun is None:

@@ -21,7 +21,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import logging
 from torchUtil import GaoNet, modelLoaderV2
-from GAO.pyLib.math.stat import destdify, stdify
+from ..math.stat import destdify, stdify
 import re
 import cPickle as pickle
 

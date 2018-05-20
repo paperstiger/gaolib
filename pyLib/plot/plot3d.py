@@ -58,9 +58,26 @@ def plot(x, y=None, z=None, ax=None, axis=1, noz=False, show=False, scatter=Fals
     # construct a dict
     cfgDct = dict()
     allowKeys = ['color', 'c', 'label', 'linestyle', 'ls', 'linewidth', 'lw', 'marker']
+    use_downsample = False
+    if 'use_num' in kwargs:
+        use_num = int(kwargs['use_num'])
+        if use_num < len(tx):
+            use_downsample = True
+            userandom = kwargs.get('use_num_random', True)
+            if userandom:
+                useindice = np.random.choice(len(tx), size=use_num, replace=False)
+            else:
+                step = len(tx) // use_downsample
+                useindice = np.arange(np.random.randint(step), len(tx), step)
+            tx = tx[useindice]
+            ty = ty[useindice]
+            if tz is not None:
+                tz = tz[useindice]
+
     for key in allowKeys:
         if key in kwargs:
             cfgDct[key] = kwargs[key]
+
     if tz is not None:
         if ax is None:
             fig = plt.figure()
@@ -69,6 +86,7 @@ def plot(x, y=None, z=None, ax=None, axis=1, noz=False, show=False, scatter=Fals
             hdl = ax.scatter(tx, ty, tz, **cfgDct)
         else:
             hdl = ax.plot(tx, ty, tz, **cfgDct)
+        ax.set_zlabel(r'$z$')
     else:
         if ax is None:
             fig, ax = plt.subplots()
@@ -76,6 +94,8 @@ def plot(x, y=None, z=None, ax=None, axis=1, noz=False, show=False, scatter=Fals
             hdl = ax.scatter(tx, ty, **cfgDct)
         else:
             hdl = ax.plot(tx, ty, **cfgDct)
+    ax.set_xlabel(r'$x$')
+    ax.set_ylabel(r'$y$')
     if show:
         plt.show()
     if scatter:
@@ -92,6 +112,7 @@ def scatter(x, y=None, z=None, ax=None, axis=1, noz=False, show=False, **kwargs)
     if y is not None, and M and y are both 1d, plot 2d, otherwise do it for 1st axis
     if z is not None, do the same for 3d case
     kwargs might be xaxis, xind, yaxis, yind, zaxis, zind
+    kwargs can include use_num which is how many points to use and use_num_random to indicate we randomly choose them
     """
     if y is not None:
         if y.ndim == 1:

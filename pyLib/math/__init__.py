@@ -7,5 +7,5 @@
 # Distributed under terms of the MIT license.
 from .gradient import gradNorm, verboseGradNorm, finiteDiff
 from .local import Query
-from .stat import stdify, destdify, l1loss
+from .stat import stdify, destdify, l1loss, getPCA
 from .extnp import blockIndex

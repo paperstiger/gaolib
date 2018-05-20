@@ -14,7 +14,7 @@ from scipy.integrate import ode
 import numpy as np
 
 
-class trajPropagate(object):
+class TrajPropagate(object):
     def __init__(self, sys, method='c', *args, **kw):
         self.sys = sys
         self.dimx, self.dimu = sys.dimx, sys.dimu
@@ -38,10 +38,10 @@ class trajPropagate(object):
             return x0 + dx * (t[1] - t[0])
 
 
-class simulator(trajPropagate):
+class Simulator(TrajPropagate):
     """A simulator that supports controller"""
     def __init__(self, sys, method='c', ctrl=None, dt=0.02, *args, **kw):
-        super(simulator, self).__init__(sys, method, *args, **kw)
+        super(Simulator, self).__init__(sys, method, *args, **kw)
         self.ctrller = ctrl
         self.dt = dt
         self.x0 = np.zeros(self.dimx)
