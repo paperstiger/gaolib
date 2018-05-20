@@ -1,0 +1,256 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyLib.plot package &#8212; pyLib  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pylib-plot-package">
+<h1>pyLib.plot package<a class="headerlink" href="#pylib-plot-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pyLib.plot.common">
+<span id="pylib-plot-common-module"></span><h2>pyLib.plot.common module<a class="headerlink" href="#module-pyLib.plot.common" title="Permalink to this headline">¶</a></h2>
+<p>common.py</p>
+<p>Define global variables being shared across this module</p>
+<dl class="function">
+<dt id="pyLib.plot.common.alignXAxis">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">alignXAxis</code><span class="sig-paren">(</span><em>ax</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.alignXAxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of axis / list of list of axis, we align the X axis.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.common.alignXYAxis">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">alignXYAxis</code><span class="sig-paren">(</span><em>ax</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.alignXYAxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Align both x and y axis for many axes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.common.alignYAxis">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">alignYAxis</code><span class="sig-paren">(</span><em>ax</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.alignYAxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of axis / list of list of axis, we align the X axis.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.common.get3dAxis">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">get3dAxis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.get3dAxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a fig and an axis that supports 3d plotting</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.common.getColorCycle">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">getColorCycle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.getColorCycle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.common.getIndAlongAxis">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">getIndAlongAxis</code><span class="sig-paren">(</span><em>x</em>, <em>axis</em>, <em>ind=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.getIndAlongAxis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.common.savefig">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">savefig</code><span class="sig-paren">(</span><em>fig</em>, <em>fname=None</em>, <em>dpi=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.savefig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a figure. If fname and dpi are None, fig is used as the name</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.common.setFontSize">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">setFontSize</code><span class="sig-paren">(</span><em>SMALL_SIZE=14</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.setFontSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>change many font size for better visualization</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.common.subplots">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">subplots</code><span class="sig-paren">(</span><em>nrow=None</em>, <em>ncol=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.subplots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an axis matrix, the user is allowed to access axes using a single number.</p>
+<p>If nrow and ncol are both passed in, an ordinary axis matrix is constructed, this interface allows single-index access.
+If ncol is None, we automatically calculate the grid size such that row=floor(sqrt(nrow)) and col=nrow // row (+ 1)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.common.subplots3d">
+<code class="descclassname">pyLib.plot.common.</code><code class="descname">subplots3d</code><span class="sig-paren">(</span><em>nrow=None</em>, <em>ncol=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.common.subplots3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create subplots.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyLib.plot.compare">
+<span id="pylib-plot-compare-module"></span><h2>pyLib.plot.compare module<a class="headerlink" href="#module-pyLib.plot.compare" title="Permalink to this headline">¶</a></h2>
+<p>compare.py</p>
+<p>Extensively used when I want to compare several samples</p>
+<dl class="function">
+<dt id="pyLib.plot.compare.compare">
+<code class="descclassname">pyLib.plot.compare.</code><code class="descname">compare</code><span class="sig-paren">(</span><em>arr</em>, <em>x=None</em>, <em>ax=None</em>, <em>transpose=False</em>, <em>show=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.compare.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a matrix or 3d tensor, do some comparison</p>
+<p>arr is 3d tensor or list of 2d array
+x is the x-coordinate for each Cat, so it is a list of 1d nparray
+trnspose = True make the data be data by sample
+show = False means not plot immediately
+TODO:
+headtail = True means distinguish between 1st and last samples
+kwargs are allowed configurations, we have to pass in dict</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.compare.compareXYZ">
+<code class="descclassname">pyLib.plot.compare.</code><code class="descname">compareXYZ</code><span class="sig-paren">(</span><em>arr</em>, <em>ax=None</em>, <em>transpose=False</em>, <em>d3=False</em>, <em>scatter=False</em>, <em>show=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.compare.compareXYZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>hybrid of compare, and plot. Assume we have a cat by N by dim dataset, we want to select a few col/row to plot in 2d/3d</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyLib.plot.plot3d">
+<span id="pylib-plot-plot3d-module"></span><h2>pyLib.plot.plot3d module<a class="headerlink" href="#module-pyLib.plot.plot3d" title="Permalink to this headline">¶</a></h2>
+<p>plot3d.py</p>
+<dl class="function">
+<dt id="pyLib.plot.plot3d.addSphere">
+<code class="descclassname">pyLib.plot.plot3d.</code><code class="descname">addSphere</code><span class="sig-paren">(</span><em>ax</em>, <em>xc</em>, <em>yc</em>, <em>zc</em>, <em>r</em>, <em>elev=10</em>, <em>color='g'</em>, <em>alpha=0.2</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.plot3d.addSphere" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.plot3d.plot">
+<code class="descclassname">pyLib.plot.plot3d.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>x</em>, <em>y=None</em>, <em>z=None</em>, <em>ax=None</em>, <em>axis=1</em>, <em>noz=False</em>, <em>show=False</em>, <em>scatter=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.plot3d.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Easy-2-use function for plotting, either line or scatter is supported, 2d and 3d are supported
+Refer scatter for document</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.plot3d.scatter">
+<code class="descclassname">pyLib.plot.plot3d.</code><code class="descname">scatter</code><span class="sig-paren">(</span><em>x</em>, <em>y=None</em>, <em>z=None</em>, <em>ax=None</em>, <em>axis=1</em>, <em>noz=False</em>, <em>show=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.plot3d.scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot scatter figure. 
+if y and z is None, simply use M, col determines 2d (default) or 3d
+axis determines column-wise (default) or row-wise plot
+if y is not None, and M and y are both 1d, plot 2d, otherwise do it for 1st axis
+if z is not None, do the same for 3d case
+kwargs might be xaxis, xind, yaxis, yind, zaxis, zind
+kwargs can include use_num which is how many points to use and use_num_random to indicate we randomly choose them</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.plot3d.set_axes_equal">
+<code class="descclassname">pyLib.plot.plot3d.</code><code class="descname">set_axes_equal</code><span class="sig-paren">(</span><em>ax</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.plot3d.set_axes_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make axes of 3D plot have equal scale so that spheres appear as spheres,
+cubes as cubes, etc..  This is one possible solution to Matplotlib’s
+ax.set_aspect(‘equal’) and ax.axis(‘equal’) not working for 3D.</p>
+<dl class="docutils">
+<dt>Input</dt>
+<dd>ax: a matplotlib axis, e.g., as output from plt.gca().</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyLib.plot">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyLib.plot" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyLib.plot.alignRange">
+<code class="descclassname">pyLib.plot.</code><code class="descname">alignRange</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.alignRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given many axes, align the range</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.getSizeFont">
+<code class="descclassname">pyLib.plot.</code><code class="descname">getSizeFont</code><span class="sig-paren">(</span><em>size=16</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.getSizeFont" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.setTickSize">
+<code class="descclassname">pyLib.plot.</code><code class="descname">setTickSize</code><span class="sig-paren">(</span><em>ax</em>, <em>size=16</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.setTickSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pyLib.plot.show">
+<code class="descclassname">pyLib.plot.</code><code class="descname">show</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.plot.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>For this function, args can only be figures to be tight_layouted.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pyLib.plot package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pyLib.plot.common">pyLib.plot.common module</a></li>
+<li><a class="reference internal" href="#module-pyLib.plot.compare">pyLib.plot.compare module</a></li>
+<li><a class="reference internal" href="#module-pyLib.plot.plot3d">pyLib.plot.plot3d module</a></li>
+<li><a class="reference internal" href="#module-pyLib.plot">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pyLib.plot.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Gao Tang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pyLib.plot.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

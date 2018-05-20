@@ -1,0 +1,252 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyLib.dynsys package &#8212; pyLib  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pylib-dynsys-package">
+<h1>pyLib.dynsys package<a class="headerlink" href="#pylib-dynsys-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pyLib.dynsys.dynsys">
+<span id="pylib-dynsys-dynsys-module"></span><h2>pyLib.dynsys.dynsys module<a class="headerlink" href="#module-pyLib.dynsys.dynsys" title="Permalink to this headline">¶</a></h2>
+<p>dynsys.py</p>
+<dl class="class">
+<dt id="pyLib.dynsys.dynsys.DubinCar">
+<em class="property">class </em><code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">DubinCar</code><a class="headerlink" href="#pyLib.dynsys.dynsys.DubinCar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyLib.dynsys.dynsys.dynsys" title="pyLib.dynsys.dynsys.dynsys"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyLib.dynsys.dynsys.dynsys</span></code></a></p>
+<p>Demo class, the pendulum</p>
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.DubinCar.getDf">
+<code class="descname">getDf</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.DubinCar.getDf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given t, x, u, return dxdt</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.DubinCar.getJac">
+<code class="descname">getJac</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.DubinCar.getJac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Jx and Ju, cts case since dt is unknown</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.DubinCar.getfg">
+<code class="descname">getfg</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.DubinCar.getfg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyLib.dynsys.dynsys.Pendulum">
+<em class="property">class </em><code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">Pendulum</code><a class="headerlink" href="#pyLib.dynsys.dynsys.Pendulum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyLib.dynsys.dynsys.dynsys" title="pyLib.dynsys.dynsys.dynsys"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyLib.dynsys.dynsys.dynsys</span></code></a></p>
+<p>Demo class, the pendulum. We assume gravity is 1</p>
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.Pendulum.getDf">
+<code class="descname">getDf</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.Pendulum.getDf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given t, x, u, return dxdt</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.Pendulum.getJac">
+<code class="descname">getJac</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.Pendulum.getJac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Jx and Ju, cts case since dt is unknown</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.Pendulum.getfg">
+<code class="descname">getfg</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.Pendulum.getfg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyLib.dynsys.dynsys.QuadCopter">
+<em class="property">class </em><code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">QuadCopter</code><span class="sig-paren">(</span><em>quat=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.QuadCopter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyLib.dynsys.dynsys.dynsys" title="pyLib.dynsys.dynsys.dynsys"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyLib.dynsys.dynsys.dynsys</span></code></a></p>
+<p>Demo class, for a quadcopter</p>
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.QuadCopter.getDf">
+<code class="descname">getDf</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.QuadCopter.getDf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return time-derivative of state</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.QuadCopter.getJac">
+<code class="descname">getJac</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.QuadCopter.getJac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Jx and Ju</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.QuadCopter.getfg">
+<code class="descname">getfg</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.QuadCopter.getfg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyLib.dynsys.dynsys.SecondOrderPlanarCar">
+<em class="property">class </em><code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">SecondOrderPlanarCar</code><a class="headerlink" href="#pyLib.dynsys.dynsys.SecondOrderPlanarCar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyLib.dynsys.dynsys.dynsys" title="pyLib.dynsys.dynsys.dynsys"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyLib.dynsys.dynsys.dynsys</span></code></a></p>
+<p>A second order planar car.</p>
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.SecondOrderPlanarCar.getDf">
+<code class="descname">getDf</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.SecondOrderPlanarCar.getDf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given t, x, u, return dxdt</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.SecondOrderPlanarCar.getJac">
+<code class="descname">getJac</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.SecondOrderPlanarCar.getJac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given t, x, u, return Jx, Ju</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyLib.dynsys.dynsys.dynsys">
+<em class="property">class </em><code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">dynsys</code><span class="sig-paren">(</span><em>dimx</em>, <em>dimu</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.dynsys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for dynamical system</p>
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.dynsys.getAB">
+<code class="descname">getAB</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em>, <em>dt</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.dynsys.getAB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given t, x, u, return A, B</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.dynsys.getDf">
+<code class="descname">getDf</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.dynsys.getDf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given t, x, u, return dxdt</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.dynsys.dynsys.dynsys.getJac">
+<code class="descname">getJac</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.dynsys.getJac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given t, x, u, return Jx, Ju</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.dynsys.dynsys.quadDyn">
+<code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">quadDyn</code><span class="sig-paren">(</span><em>x</em>, <em>u</em>, <em>m</em>, <em>g</em>, <em>kF</em>, <em>kM</em>, <em>L</em>, <em>In</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.quadDyn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dyn fun for quadcopter</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.dynsys.dynsys.quadFG">
+<code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">quadFG</code><span class="sig-paren">(</span><em>x</em>, <em>m</em>, <em>g</em>, <em>kF</em>, <em>kM</em>, <em>L</em>, <em>In</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.quadFG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pyLib.dynsys.dynsys.quadJac">
+<code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">quadJac</code><span class="sig-paren">(</span><em>x</em>, <em>u</em>, <em>m</em>, <em>g</em>, <em>kF</em>, <em>kM</em>, <em>L</em>, <em>In</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.quadJac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Jx and Ju, cts case since dt is unknown</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.dynsys.dynsys.quatQuadDyn">
+<code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">quatQuadDyn</code><span class="sig-paren">(</span><em>x</em>, <em>u</em>, <em>m</em>, <em>g</em>, <em>kF</em>, <em>kM</em>, <em>L</em>, <em>In</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.quatQuadDyn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dyn equation for quadcopter in quaternion</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.dynsys.dynsys.quatQuadJac">
+<code class="descclassname">pyLib.dynsys.dynsys.</code><code class="descname">quatQuadJac</code><span class="sig-paren">(</span><em>x</em>, <em>u</em>, <em>m</em>, <em>g</em>, <em>kF</em>, <em>kM</em>, <em>L</em>, <em>In</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.dynsys.dynsys.quatQuadJac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Jx and Ju, in quaternion case</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyLib.dynsys">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyLib.dynsys" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pyLib.dynsys package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pyLib.dynsys.dynsys">pyLib.dynsys.dynsys module</a></li>
+<li><a class="reference internal" href="#module-pyLib.dynsys">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pyLib.dynsys.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Gao Tang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pyLib.dynsys.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
