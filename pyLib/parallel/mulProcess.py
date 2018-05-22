@@ -98,3 +98,9 @@ class mulProcess(object):
             except:
                 print('Error occurs at %d' % i)
         return results
+
+
+def getTaskSplit(num, nProcess):
+    """Return a split of task."""
+    tmp = np.linspace(0, num, nProcess + 1, dtype=int)
+    return [(tmp[i], tmp[i + 1]) for i in range(nProcess)]
