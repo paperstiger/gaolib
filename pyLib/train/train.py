@@ -15,7 +15,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import Dataset
 from torchUtil import GaoNet, plotError, recordStep0
-from dataLoader import dataLoader, keyFactory, labelFactory, subFactory
+from dataLoader import dataLoader, keyFactory, labelFactory, subFactory, unaryKeyFactory
 # from tensorboardX import SummaryWriter
 
 
@@ -242,6 +242,7 @@ def genFromDefaultConfig(**kwargs):
                 "lr": 1e-3,
                 "epoch": 1500,
                 "batch_size": 64,
+                "test_batch_size": -1,
                 "errorbackstep": 300,
                 "trainsize": 0.8,
                 "recordfreq": 10,
@@ -256,7 +257,7 @@ def genFromDefaultConfig(**kwargs):
     return defaultdict
 
 
-def trainOne(config, data, scale_back=True, seed=1994, is_reg_task=True, x0_name='x0'):
+def trainOne(config, data, scale_back=True, seed=1994, is_reg_task=True, x0_name='x0', net=None, scalex=True, scaley=True):
     """Train a network and save it somewhere.
 
     It handles naive regression and classification task if GaoNet is used.
@@ -272,13 +273,11 @@ def trainOne(config, data, scale_back=True, seed=1994, is_reg_task=True, x0_name
     seed : int, seeder for random
     is_reg_task : bool, if we are training a regression task instead of classification
     x0_name : str, the name of x in each cluster when classification task is performed
+    net : a nn.Module object, if it is used, we do not construct GaoNet
+    scalex : bool, if we standarize x before training
+    scaley : bool, if we standarize y before training
 
     """
-    assert isinstance(config['network'], list)
-    if isinstance(config['network'][0], list):
-        network = config['network'][0]
-    else:
-        network = config['network']
     trainsize = config['trainsize']
     epoch = config['epoch']
     lr = config['lr']
@@ -287,24 +286,28 @@ def trainOne(config, data, scale_back=True, seed=1994, is_reg_task=True, x0_name
     if is_reg_task:
         namex = config.get('namex', 'x')
         namey = config.get('namey', 'y')
-        factory = keyFactory(data, namex, namey)
+        factory = keyFactory(data, namex, namey, scalex=scalex, scaley=scaley)
         factory.shuffle(seed)
     else:
         nCluster = len(data)
         nameLblPair = [('x%d'%i, i) for i in range(nCluster)]
         if isinstance(data['x0'], dict):
-            factory = labelFactory(data, nameLblPair, xfun=lambda x: x[x0_name], normalize=True)
+            factory = labelFactory(data, nameLblPair, xfun=lambda x: x[x0_name], scalex=scalex)
         else:
-            factory = labelFactory(data, nameLblPair, xfun=None, normalize=True)
+            factory = labelFactory(data, nameLblPair, xfun=None, scalex=scalex)
         factory.shuffle(seed)
     trainSet = subFactory(factory, 0.0, trainsize)
     testSet = subFactory(factory, trainsize, 1.0)
     batch_size = config['batch_size']
     outname = os.path.join(config['outdir'], config['outname'])
-    test_batch_size = -1
+    test_batch_size = config['test_batch_size']
     trainLder = dataLoader(trainSet, batch_size=batch_size, shuffle=False)
     testLder = dataLoader(testSet, batch_size=test_batch_size, shuffle=False)
-    net = GaoNet(network).cuda()
+    if net is None:
+        network = _getNetwork(config)
+        net = GaoNet(network).cuda()
+    else:
+        net.cuda()
 
     if is_reg_task:
         ymean = Variable(torch.from_numpy(factory.ymean).float()).cuda()
@@ -345,3 +348,66 @@ def trainOne(config, data, scale_back=True, seed=1994, is_reg_task=True, x0_name
                     epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep)
 
     trner.train(outname, ptmode=True)
+
+
+def trainAutoEncoder(net, data, config, seed=1994, scale=False):
+    """Train an autoencoder, an unsupervised learning model.
+
+    The net has to be encoded by the user, if it is None, and config has network size we explore GaoNet to do this.
+
+    Parameters
+    ----------
+    net : nn.Module object, the network to be trained
+    config : dict, containing training parameters
+    data : dict, containing data for training
+    seed : int, seeder for random
+    scale : if we scale the data to make it normal
+
+    """
+    assert isinstance(net, nn.Module)
+    if net is None:
+        network = _getNetwork(config)
+        net = GaoNet(network)
+    net.cuda()
+    trainsize = config['trainsize']
+    epoch = config['epoch']
+    lr = config['lr']
+    recordfreq = config['recordfreq']
+    errorbackstep = config['errorbackstep']
+    factory = unaryKeyFactory({'x': data}, 'x', scalex=scale)
+    factory.shuffle(seed)
+    # split
+    trainSet = subFactory(factory, 0.0, trainsize)
+    testSet = subFactory(factory, trainsize, 1.0)
+    # read batch
+    batch_size = config['batch_size']
+    outname = os.path.join(config['outdir'], config['outname'])
+    test_batch_size = -1
+    trainLder = dataLoader(trainSet, batch_size=batch_size, shuffle=False)
+    testLder = dataLoader(testSet, batch_size=test_batch_size, shuffle=False)
+    if net is None:
+        net = GaoNet(network).cuda()
+    else:
+        net.cuda()
+
+    l1loss = torch.nn.SmoothL1Loss()
+
+    trner = trainer(net, trainLder, testLder, l1loss,
+                    epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, unary=1)
+    trner.train(outname, ptmode=True)
+
+
+def _getNetwork(config):
+    """Extract the network list from config.
+
+    We note that for backward compatibility, we support [[x,x,x]] type.
+
+    """
+    if not 'network' in config:
+        return None
+    assert isinstance(config['network'], list)
+    if isinstance(config['network'][0], list):
+        network = config['network'][0]
+    else:
+        network = config['network']
+    return network
