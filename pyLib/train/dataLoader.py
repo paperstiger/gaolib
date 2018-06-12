@@ -19,7 +19,7 @@ Design philosophy
 """
 
 
-def checkstd(args, tol=1e-3):
+def _checkstd(args, tol=1e-3):
     '''Find those data with std < 1e-3, we do not change it'''
     if isinstance(args, list):
         for arg in args:
@@ -32,7 +32,7 @@ def checkstd(args, tol=1e-3):
 
 
 class unaryFactory(Dataset):
-    """Factory for only one variable"""
+    """Factory for only one variable. This serves as an abstract class"""
     def __init__(self):
         self.numData = 0
         self._data = None
@@ -50,7 +50,7 @@ class unaryFactory(Dataset):
 
 
 class Factory(Dataset):
-    """For factory"""
+    """An abstract class for definition of data factory."""
     def __init__(self):
         self.numData = 0
         self._xdata = None
@@ -74,7 +74,17 @@ class Factory(Dataset):
 
 
 class subFactory(Dataset):
+    """A subset of a factory is termed subFactory"""
     def __init__(self, factory, start, final):
+        """Constructor.
+
+        Parameters
+        ----------
+        factory : a Factory object.
+        start : float, [0, 1] starting index
+        final : float, [0, 1] ending index
+        """
+        assert isinstance(factory, Factory)
         self.factory = factory
         assert 0 <= start and start <= 1
         assert 0 <= final and final <= 1
@@ -104,33 +114,48 @@ class subFactory(Dataset):
 
 class unaryKeyFactory(unaryFactory):
     """A factory that contains only one variable"""
-    def __init__(self, fnm, xnm, xfun=None, normalize=True):
+    def __init__(self, fnm, xnm, xfun=None, scalex=True):
+        """Constructor.
+
+        Parameters
+        ----------
+        fnm : the data.
+
+        If fnm is a string ending with npz / pkl, we try to load the data assuming it is a dict
+        If fnm is has callable keys(), we call it, the name is specified by xnm
+        If fnm is ndarray, we directly use it
+
+        xnm : str, used when fnm has dict-type access method. It specifies the name.
+        xfun : a callable, it takes the data as argument and return the final one
+        scalex : bool, if we scale the data
+
+        """
         if isinstance(fnm, str):
             if '.npz' in fnm or '.npy' in fnm:
-                tmp = np.load(fnm)
+                tmp = np.load(fnm)[xnm]
             elif '.pkl' in fnm:
-                tmp = pkl.load(open(fnm, 'rb'))
+                tmp = pkl.load(open(fnm, 'rb'))[xnm]
             else:
                 raise NotImplementedError
         else:
             if callable(getattr(fnm, 'keys', None)):
-                tmp = fnm
+                tmp = fnm[xnm]
             else:
                 if isinstance(fnm, np.ndarray):
                     tmp = fnm
                 else:
                     raise NotImplementedError
         if xfun is not None:
-            self._data = xfun(tmp[xnm])
+            self._data = xfun(tmp)
         else:
-            self._data = tmp[xnm]
+            self._data = tmp
         self.numData = len(self._data)
-        if normalize:
+        if scalex:
             xmean, xstd = np.mean(self._data, axis=0, keepdims=True), np.std(self._data, axis=0, keepdims=True)
-            checkstd(xstd, tol=1e-3)
+            _checkstd(xstd, tol=1e-3)
             self._realdata = self._data.copy()
         else:
-            xmean, xstd = 0, 1
+            xmean, xstd = np.array([0]), np.array([1])
             self._realdata = self._data
         self._data = (self._data - xmean) / xstd
         self._xmean, self._xstd = xmean, xstd
@@ -143,7 +168,24 @@ class keyFactory(Factory):
     """
     Generate a factory type using key and dict
     """
-    def __init__(self, fnm, xnm, ynm, xfun=None, yfun=None, normalize=True):
+    def __init__(self, fnm, xnm, ynm, xfun=None, yfun=None, scalex=True, scaley=True):
+        """Constructor.
+
+        Parameters
+        ----------
+        fnm : the data.
+
+        If fnm is a string ending with npz / pkl, we try to load the data assuming it is a dict
+        If fnm is has callable keys(), we call it, the name is specified by xnm and ynm
+
+        xnm : str, it specifies how to access x data
+        ynm : str, it specifies how to access y data
+        xfun : a callable, it takes the x data as argument and return the final one
+        yfun : a callable, it takes the y data as argument and return the final one
+        scalex : bool, if we scale the x data
+        scaley : bool, if we scale the y data
+
+        """
         # load data, it can be string (np or pkl) or dict
         if isinstance(fnm, str):
             if '.npz' in fnm or '.npy' in fnm:
@@ -166,16 +208,19 @@ class keyFactory(Factory):
         else:
             self._ydata = tmp[ynm]
         self.numData = len(self._xdata)
-        if normalize:
+        if scalex:
             xmean, xstd = np.mean(self._xdata, axis=0, keepdims=True), np.std(self._xdata, axis=0, keepdims=True)
-            umean, ustd = np.mean(self._ydata, axis=0, keepdims=True), np.std(self._ydata, axis=0, keepdims=True)
-            checkstd([xstd, ustd], tol=1e-3)
+            _checkstd(xstd, tol=1e-3)
             self._realxdata = self._xdata.copy()
+        else:
+            xmean, xstd = np.zeros(1), np.ones(1)
+            self._realxdata = self._xdata
+        if scaley:
+            umean, ustd = np.mean(self._ydata, axis=0, keepdims=True), np.std(self._ydata, axis=0, keepdims=True)
+            _checkstd(ustd, tol=1e-3)
             self._realydata = self._ydata.copy()
         else:
-            xmean, xstd = 0, 1
-            umean, ustd = 0, 1
-            self._realxdata = self._xdata
+            umean, ustd = np.zeros(1), np.ones(1)
             self._realydata = self._ydata
         self._xdata = (self._xdata - xmean) / xstd
         self._ydata = (self._ydata - umean) / ustd
@@ -197,7 +242,17 @@ class labelFactory(Factory):
     We support two modes, one given file, we use a list of keys and functions operated on.
     Another mode is to simply add data label by label.
     """
-    def __init__(self, fnm, nameLblPair, xfun=None, normalize=True):
+    def __init__(self, fnm, nameLblPair, xfun=None, scalex=True):
+        """Constructor.
+
+        Parameters
+        ----------
+        fnm : the dataset. It can be str, so we load them or a dictionary
+        nameLblPair : we use this pair to get access to labelled data.
+        xfun : callable, if we want to transform x data
+        scalex : bool, if we want to standardize x
+
+        """
         if isinstance(fnm, str):
             if '.npz' in fnm or '.npy' in fnm:
                 tmp = np.load(fnm)
@@ -221,13 +276,13 @@ class labelFactory(Factory):
         self._label = np.concatenate(self.lstLabel, axis=0)
         self._ydata = self._label
         self.numLabel = len(self.lstLabel)
-        if normalize:
+        if scalex:
             self._xmean = np.mean(self._realxdata, axis=0, keepdims=True)
             self._xstd = np.std(self._realxdata, axis=0, keepdims=True)
-            checkstd([self._xstd], tol=1e-3)
+            _checkstd([self._xstd], tol=1e-3)
             self._xdata = (self._realxdata - self._xmean) / self._xstd
         else:
-            self._xmean, self._xstd = 0, 1
+            self._xmean, self._xstd = np.zeros(1), np.ones(1)
             self._xdata = self._realxdata
         self.numData = len(self._xdata)
         self._xdata = self._xdata.astype(np.float32)  # make it float
@@ -240,11 +295,18 @@ class vecKeyFactory(Dataset):
     """
     Generate a factory type using key and dict
     """
-    def __init__(self, fnm, names, funs, norms):
+    def __init__(self, fnm, names, funs, scales):
+        """Construtor
+
+        Parameters
+        ----------
+        fnm : a str so we can load data from or a dictionary containing the data.
+        names : a list/tuple of keys we intend to access
+        funs : a list/tuple of callable to modify the respective data
+        scales : a list/tuple of bool specify if each data is standardized
+
         """
-        names, funs, and norms are containers
-        funs can be a function if it takes multiple inputs and returns
-        """
+        norms = scales
         if isinstance(fnm, str):
             if 'npz' in fnm or 'npy' in fnm:
                 tmp = np.load(fnm)
@@ -283,7 +345,7 @@ class vecKeyFactory(Dataset):
             assert len(norms) == len(names)
             self._mean = [np.mean(dt, axis=0, keepdims=True) if norm else 0 for dt, norm in zip(self._data, norms)]
             self._std = [np.std(dt, axis=0, keepdims=True) if norm else 1 for dt, norm in zip(self._data, norms)]
-            checkstd(self._std, tol=1e-3)
+            _checkstd(self._std, tol=1e-3)
             self._realdata = [dt.copy() if norm else dt for dt, norm in zip(self._data, norms)]
         # element wise normalize
         self._data = [(self._data[i] - self._mean[i])/self._std[i] for i in range(self.nData)]
@@ -309,6 +371,14 @@ class dataLoader(DataLoader):
     It supports getNumData and negative batch_size(means all)
     """
     def __init__(self, dtset, batch_size, shuffle=False):
+        """Construtor
+        Parameters
+        ----------
+        dtset : a dataset
+        batch_size : size of a minibatch
+        shuffle : bool, if we shuffle the data
+
+        """
         if batch_size <= 0:
             batch_size = len(dtset)
         self.dtset = dtset

@@ -133,7 +133,7 @@ class DubinCar(dynsys):
 class QuadCopter(dynsys):
     """Demo class, for a quadcopter"""
     def __init__(self, quat=False):
-        super(quadCopter, self).__init__(12, 4)
+        super(QuadCopter, self).__init__(12, 4)
         self.m = 0.5
         self.g = 9.81
         self.kF = 1.

@@ -49,3 +49,11 @@ def alignRange(*args):
     for arg in args:
         arg.set_xlim((left, right))
         arg.set_ylim((down, up))
+
+
+__colors__ = getColorCycle()
+
+
+def getColor(i):
+    """Return a color"""
+    return __colors__[i % len(__colors__)]

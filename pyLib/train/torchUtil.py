@@ -350,9 +350,11 @@ def modelLoaderV2(model, cudafy=False, ptmode=False):
     else:
         mdl.cpu()
         if xScale is not None:
-            xScale = [Variable(torch.from_numpy(x.astype(np.float32))) for x in xScale]
+            if isinstance(xScale[0], np.ndarray):
+                xScale = [Variable(torch.from_numpy(x.astype(np.float32))) for x in xScale]
         if yScale is not None:
-            yScale = [Variable(torch.from_numpy(x.astype(np.float32))) for x in yScale]
+            if isinstance(yScale[0], np.ndarray):
+                yScale = [Variable(torch.from_numpy(x.astype(np.float32))) for x in yScale]
     return [mdl, xScale, yScale]
 
 
