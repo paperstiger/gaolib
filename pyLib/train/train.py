@@ -233,7 +233,23 @@ def getFileName(basename, prename, obj):
 
 
 def genFromDefaultConfig(**kwargs):
-    """Generate a default configuration dict to avoid things."""
+    """Generate a default configuration dict to avoid things.
+
+    Available keywords include:
+    network: a list of int, describing network structure
+    lr: float, learning rate, default 1e-3
+    epoch: int, number of learning epoch, default 1500
+    batch_size: int, size of minibatch for sgd, default 64
+    test_batch_size: int, size of minibatch for evaluating test set; -1 means all, default -1
+    errorbackstep: int, if test error has no improvement within this steps, quit training, default 300
+    trainsize: float, split of training and test set size, default 0.8
+    recordfreq: int, frequency of recording of test errors, default 10
+    namex: str, key that maps to input, default 'x'
+    namey: str, key that maps to output, default 'y'
+    ourdir: str, directory to store saved models, default 'models'
+    outname: str, name for this particular model, default 'y_of_x.pt'
+    dataname: str, name for the data, might be unnecessary, default 'data/data.npz'
+    """
     defaultdict = {
                 "network": [
                     [1, 1, 1]

@@ -83,6 +83,11 @@ class mulProcess(object):
         self.nProcess = nProcess
 
     def run(self, **kwargs):
+        """Run the simulation in multiple processes.
+
+        :param kwargs: key-word arguments, user can specify wait time by wait=0.1
+        :return: a list of return values from each process
+        """
         allproc = [Process(target=mc, args=(i, self.return_dict)) for i, mc in enumerate(self.MCs)]
         for proc in allproc:
             proc.start()
@@ -108,3 +113,21 @@ def getTaskSplit(num, nProcess):
     """
     tmp = np.linspace(0, num, nProcess + 1, dtype=int)
     return [(tmp[i], tmp[i + 1]) for i in range(nProcess)]
+
+
+def getSharedNumpy(*args):
+    """Return the shared numpy wrapper for many numpy arrays.
+
+    :param args: ndarrays
+    :return: the shared numpy wrapper for each numpy array
+    """
+    return [sharedNumpy(arg) for arg in args]
+
+
+def getNumpy(*args):
+    """Return the numpy instance from shared numpy.
+
+    :param args: sharedNumpy object
+    :return: the numpy array
+    """
+    return [arg.numpy() for arg in args]
