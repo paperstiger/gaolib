@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
@@ -14,7 +15,9 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.append(os.path.abspath('../..'))
+import torch
+import scipy.linalg
 
 
 # -- Project information -----------------------------------------------------

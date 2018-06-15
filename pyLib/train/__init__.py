@@ -1,4 +1,5 @@
 import torch
+import scipy.linalg
 from .train import trainer, getFileName, genFromDefaultConfig, trainOne, trainAutoEncoder
 from .weighttrain import weightTrainer
 from .dataLoader import dataLoader, keyFactory, vecKeyFactory, labelFactory, subFactory, Factory, unaryKeyFactory

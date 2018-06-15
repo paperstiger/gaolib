@@ -28,6 +28,14 @@ pyLib.io.printio module
     :undoc-members:
     :show-inheritance:
 
+pyLib.io.sharedmemory module
+----------------------------
+
+.. automodule:: pyLib.io.sharedmemory
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pyLib.io.stringio module
 ------------------------
 

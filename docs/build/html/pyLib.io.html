@@ -109,6 +109,103 @@ I wish this is faster than pickle</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-pyLib.io.sharedmemory">
+<span id="pylib-io-sharedmemory-module"></span><h2>pyLib.io.sharedmemory module<a class="headerlink" href="#module-pyLib.io.sharedmemory" title="Permalink to this headline">¶</a></h2>
+<p>sharedmemory.py</p>
+<p>A module that supports shared memory.</p>
+<dl class="class">
+<dt id="pyLib.io.sharedmemory.SharedMemory">
+<em class="property">class </em><code class="descclassname">pyLib.io.sharedmemory.</code><code class="descname">SharedMemory</code><a class="headerlink" href="#pyLib.io.sharedmemory.SharedMemory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for managing shared memory.</p>
+<p>We use a folder style format for managing files, folder names means a dict.
+The user is able to add ndarray and dict as file, folder
+The user is able to read any file, folder, too. It returns ndarray and dict</p>
+<dl class="method">
+<dt id="pyLib.io.sharedmemory.SharedMemory.addObject">
+<code class="descname">addObject</code><span class="sig-paren">(</span><em>obj</em>, <em>name=None</em>, <em>noalter=False</em>, <em>replace=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.SharedMemory.addObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an object this obj can be either ndarray or dict of ndarray.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.io.sharedmemory.SharedMemory.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.SharedMemory.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean those attributes with (x)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.io.sharedmemory.SharedMemory.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.SharedMemory.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyLib.io.sharedmemory.SharedMemory.getObject">
+<code class="descname">getObject</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.SharedMemory.getObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an object by name.</p>
+<p>We first check if it is a name to the file, by checking if it is in self.keys
+Then we check if we refer to a folder by checking all names begins with name/
+After getting a list of keys, we construct arrays / dicts</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.io.sharedmemory.SharedMemory.loadMemory">
+<code class="descname">loadMemory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.SharedMemory.loadMemory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the sa api to get all names.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.io.sharedmemory.SharedMemory.reportKeys">
+<code class="descname">reportKeys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.SharedMemory.reportKeys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.io.sharedmemory.add">
+<code class="descclassname">pyLib.io.sharedmemory.</code><code class="descname">add</code><span class="sig-paren">(</span><em>obj</em>, <em>name=None</em>, <em>noalter=False</em>, <em>replace=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an object to the environment. If name is None, it is directly added to root.</p>
+<p>obj : ndarray / dict / dict of dict, the data waiting to be added
+name : str, name assigned to the object, if it is None and obj is dict, its keys are added to root
+noalter : bool, if set to True, existing keys will not be modified
+replace : bool, only when noalter is False, if set to True, it replace a data instead of creating a one with non-conflict name</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.io.sharedmemory.clean">
+<code class="descclassname">pyLib.io.sharedmemory.</code><code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean redundant entries</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.io.sharedmemory.clear">
+<code class="descclassname">pyLib.io.sharedmemory.</code><code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>This clear current environment.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.io.sharedmemory.clearSA">
+<code class="descclassname">pyLib.io.sharedmemory.</code><code class="descname">clearSA</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.clearSA" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pyLib.io.sharedmemory.get">
+<code class="descclassname">pyLib.io.sharedmemory.</code><code class="descname">get</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an object from the environment</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.io.sharedmemory.has">
+<code class="descclassname">pyLib.io.sharedmemory.</code><code class="descname">has</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.has" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a name is in keys</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.io.sharedmemory.list">
+<code class="descclassname">pyLib.io.sharedmemory.</code><code class="descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.io.sharedmemory.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show all keys.</p>
+</dd></dl>
+
+</div>
 <div class="section" id="module-pyLib.io.stringio">
 <span id="pylib-io-stringio-module"></span><h2>pyLib.io.stringio module<a class="headerlink" href="#module-pyLib.io.stringio" title="Permalink to this headline">¶</a></h2>
 <p>stringio.py</p>
@@ -144,6 +241,7 @@ I wish this is faster than pickle</p>
 <li><a class="reference internal" href="#module-pyLib.io.argument">pyLib.io.argument module</a></li>
 <li><a class="reference internal" href="#module-pyLib.io.fileio">pyLib.io.fileio module</a></li>
 <li><a class="reference internal" href="#module-pyLib.io.printio">pyLib.io.printio module</a></li>
+<li><a class="reference internal" href="#module-pyLib.io.sharedmemory">pyLib.io.sharedmemory module</a></li>
 <li><a class="reference internal" href="#module-pyLib.io.stringio">pyLib.io.stringio module</a></li>
 <li><a class="reference internal" href="#module-pyLib.io">Module contents</a></li>
 </ul>

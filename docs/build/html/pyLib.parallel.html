@@ -52,6 +52,56 @@ from a forked multiprocessing child</p>
 
 </dd></dl>
 
+<dl class="function">
+<dt id="pyLib.parallel.mulProcess.getNumpy">
+<code class="descclassname">pyLib.parallel.mulProcess.</code><code class="descname">getNumpy</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.parallel.mulProcess.getNumpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the numpy instance from shared numpy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> – sharedNumpy object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.parallel.mulProcess.getSharedNumpy">
+<code class="descclassname">pyLib.parallel.mulProcess.</code><code class="descname">getSharedNumpy</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.parallel.mulProcess.getSharedNumpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the shared numpy wrapper for many numpy arrays.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> – ndarrays</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the shared numpy wrapper for each numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.parallel.mulProcess.getTaskSplit">
+<code class="descclassname">pyLib.parallel.mulProcess.</code><code class="descname">getTaskSplit</code><span class="sig-paren">(</span><em>num</em>, <em>nProcess</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.parallel.mulProcess.getTaskSplit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a split of task.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num</strong> – int, total number of task</li>
+<li><strong>nProcess</strong> – int, number of process</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="class">
 <dt id="pyLib.parallel.mulProcess.monteCarlo">
 <em class="property">class </em><code class="descclassname">pyLib.parallel.mulProcess.</code><code class="descname">monteCarlo</code><span class="sig-paren">(</span><em>f</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.parallel.mulProcess.monteCarlo" title="Permalink to this definition">¶</a></dt>
@@ -67,7 +117,18 @@ from a forked multiprocessing child</p>
 <dl class="method">
 <dt id="pyLib.parallel.mulProcess.mulProcess.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.parallel.mulProcess.mulProcess.run" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Run the simulation in multiple processes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> – key-word arguments, user can specify wait time by wait=0.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of return values from each process</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 

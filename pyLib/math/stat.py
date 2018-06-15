@@ -12,6 +12,7 @@ stat.py
 Functions associated with statistics
 """
 import numpy as np
+import scipy.linalg
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
