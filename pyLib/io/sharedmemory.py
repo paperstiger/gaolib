@@ -43,7 +43,6 @@ class SharedMemory(object):
         """
         return self._getObject(name, self.keys)
 
-
     def reportKeys(self):
         print(self.keys)
 

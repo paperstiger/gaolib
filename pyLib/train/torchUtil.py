@@ -16,6 +16,60 @@ import os
 from ..math.stat import destdify, stdify
 
 
+def _checkstd(args, tol=1e-3):
+    '''Find those data with std < 1e-3, we do not change it'''
+    if isinstance(args, list):
+        for arg in args:
+            if isinstance(arg, np.ndarray):
+                arg[arg < tol] = 1.0
+    elif isinstance(args, np.ndarray):
+        args[args < tol] = 1.0
+    else:
+        raise NotImplementedError
+
+
+def _getIndAlongAxis(x, axis, ind):
+    slc = [slice(None)] * x.ndim
+    slc[axis] = ind
+    return x[slc]
+
+
+def _getStandardData(data, cols=None, axis=0):
+    """Standardize a data, taken into consideration that certain data has to be scaled in the same metric.
+
+    :param data: ndarray, the data to be standardized
+    :param cols: a list or single one ndarray, the columns that have to be scaled at the same time.
+    """
+    # check if we have to do anything
+    if isinstance(cols, bool) and not cols:
+        return np.array([0]), np.array([1])
+
+    # first step, we proceed as usual
+    mean = np.mean(data, axis=axis, keepdims=True)
+    std = np.std(data, axis=axis, keepdims=True)
+
+    def modify_one_piece(col):
+        mean_ = np.mean(_getIndAlongAxis(data, axis, col))
+        std_ = np.std(_getIndAlongAxis(data, axis, col))
+        if axis == 0:
+            mean[0, col] = mean_
+            std[0, col] = std_
+        else:
+            mean[col] = mean_
+            std[col] = std_
+
+    if not isinstance(cols, bool) and cols is not None:
+        if isinstance(cols, np.ndarray):  # only one part
+            modify_one_piece(cols)
+        else:
+            for col in cols:
+                modify_one_piece(col)
+
+    # finally remove those with small std
+    _checkstd(std)
+    return mean, std
+
+
 class GaoNet(nn.Module):
     def __init__(self, lyrs, dropout=None):
         super(GaoNet, self).__init__()
@@ -96,6 +150,11 @@ class autoEncoder(nn.Module):
         x = self.encoder(x)
         x = self.decoder(x)
         return x
+
+    def __str__(self):
+        nm1 = '_'.join(map(str, self.enlayers))
+        nm2 = '_'.join(map(str, self.delayers))
+        return '%s-%s' % (nm1, nm2)
 
 
 def recordStep0(testerror, mdlname, txtname):
@@ -279,10 +338,15 @@ def svcLoader(model, name='model', reScale=True):
     return fun
 
 
-def encoderLoader(fnm, name='model', reScale=True, cuda=False):
+def encoderLoader(model, name='model', reScale=True, cuda=False, return_encoder=False, return_decoder=False):
     """Read the autoEncoder and return two functions"""
-    with open(fnm, 'rb') as f:
-        tmp = pickle.load(f)
+    if model.endswith('.pt'):
+        ptmode = True
+    if not ptmode:
+        with open(model, 'rb') as f:
+            tmp = pickle.load(f)
+    else:
+        tmp = torch.load(model)
     mdl = tmp[name].cpu()
     if reScale:
         xScale = tmp.get('xScale', None)
@@ -323,7 +387,18 @@ def encoderLoader(fnm, name='model', reScale=True, cuda=False):
             predy = destdify(predy, xScale[0], xScale[1])
         return predy
 
-    return encoder, decoder
+    def recoverer(x):
+        return decoder(encoder(x))
+
+    if not (return_encoder or return_decoder):
+        return recoverer
+
+    return_val = (recoverer,)
+    if return_encoder:
+        return_val += (encoder,)
+    if  return_decoder:
+        return_val += (decoder,)
+    return return_val
 
 
 def modelLoaderV2(model, cudafy=False, ptmode=False):

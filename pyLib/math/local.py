@@ -12,6 +12,7 @@ local.py
 Tools for analyzing local info
 """
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 try:
     import pyflann
 except:
@@ -20,7 +21,14 @@ except:
 
 class Query(object):
     # A light-weighted query class.
-    def __init__(self, A, B=None, qrynum=5):
+    def __init__(self, A, B=None, qrynum=5, scale=False):
+        """Constructor for the class.
+
+        :param A: ndarray, features being compared against
+        :param B: ndarray/None, the response
+        :param qrynum: int, number of neighbors
+        :param scale: bool, if we use standard scaler
+        """
         self.A = A
         self.B = B
         self.flann = pyflann.FLANN()
@@ -28,6 +36,10 @@ class Query(object):
         self.querynum = qrynum
         self.checks = 16  # do not know what this means
         self.ndata = len(self.A)
+        self.scale = scale
+        if scale:
+            self.scaler = StandardScaler()
+            self.A = self.scaler.fit_transform(A)
 
     def __len__(self):
         return self.ndata
@@ -37,6 +49,8 @@ class Query(object):
             x0 = np.expand_dims(x0, axis=0)
         if x0.dtype != self.A.dtype:
             x0 = x0.astype(self.A.dtype)
+        if self.scale:
+            x0 = self.scaler.transform(x0)
         result, dis = self.flann.nn_index(x0, self.querynum, checks=self.checks)
         return {'index': np.squeeze(result), 'dist': np.squeeze(dis)}
 

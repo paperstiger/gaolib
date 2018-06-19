@@ -273,7 +273,7 @@ def genFromDefaultConfig(**kwargs):
     return defaultdict
 
 
-def trainOne(config, data, scale_back=True, seed=1994, is_reg_task=True, x0_name='x0', net=None, scalex=True, scaley=True):
+def trainOne(config, data, scale_back=True, seed=None, is_reg_task=True, x0_name='x0', net=None, scalex=True, scaley=True):
     """Train a network and save it somewhere.
 
     It handles naive regression and classification task if GaoNet is used.

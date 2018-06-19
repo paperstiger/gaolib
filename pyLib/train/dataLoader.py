@@ -9,6 +9,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import numpy as np
 import os
 import cPickle as pkl
+from torchUtil import _checkstd, _getStandardData
 
 
 """
@@ -17,18 +18,6 @@ Design philosophy
 2. Let two small class store data in two sets
 3. each small set, we can operate it as others, we iterate, shuffle
 """
-
-
-def _checkstd(args, tol=1e-3):
-    '''Find those data with std < 1e-3, we do not change it'''
-    if isinstance(args, list):
-        for arg in args:
-            if isinstance(arg, np.ndarray):
-                arg[arg < tol] = 1.0
-    elif isinstance(args, np.ndarray):
-        args[args < tol] = 1.0
-    else:
-        raise NotImplementedError
 
 
 class unaryFactory(Dataset):
@@ -84,7 +73,7 @@ class subFactory(Dataset):
         start : float, [0, 1] starting index
         final : float, [0, 1] ending index
         """
-        assert isinstance(factory, Factory)
+        assert isinstance(factory, (Factory, unaryFactory))
         self.factory = factory
         assert 0 <= start and start <= 1
         assert 0 <= final and final <= 1
@@ -127,7 +116,7 @@ class unaryKeyFactory(unaryFactory):
 
         xnm : str, used when fnm has dict-type access method. It specifies the name.
         xfun : a callable, it takes the data as argument and return the final one
-        scalex : bool, if we scale the data
+        scalex : bool, if we scale the data. It can be _getStandardData compatible format for more control
 
         """
         if isinstance(fnm, str):
@@ -150,13 +139,7 @@ class unaryKeyFactory(unaryFactory):
         else:
             self._data = tmp
         self.numData = len(self._data)
-        if scalex:
-            xmean, xstd = np.mean(self._data, axis=0, keepdims=True), np.std(self._data, axis=0, keepdims=True)
-            _checkstd(xstd, tol=1e-3)
-            self._realdata = self._data.copy()
-        else:
-            xmean, xstd = np.array([0]), np.array([1])
-            self._realdata = self._data
+        xmean, xstd = _getStandardData(self._data, scalex)
         self._data = (self._data - xmean) / xstd
         self._xmean, self._xstd = xmean, xstd
         self._data = self._data.astype(np.float32)  # convert to float
@@ -182,8 +165,8 @@ class keyFactory(Factory):
         ynm : str, it specifies how to access y data
         xfun : a callable, it takes the x data as argument and return the final one
         yfun : a callable, it takes the y data as argument and return the final one
-        scalex : bool, if we scale the x data
-        scaley : bool, if we scale the y data
+        scalex : bool, if we scale the x data, or _getStandardData compatible form
+        scaley : bool, if we scale the y data, or _getStandardData compatible form
 
         """
         # load data, it can be string (np or pkl) or dict
@@ -208,20 +191,9 @@ class keyFactory(Factory):
         else:
             self._ydata = tmp[ynm]
         self.numData = len(self._xdata)
-        if scalex:
-            xmean, xstd = np.mean(self._xdata, axis=0, keepdims=True), np.std(self._xdata, axis=0, keepdims=True)
-            _checkstd(xstd, tol=1e-3)
-            self._realxdata = self._xdata.copy()
-        else:
-            xmean, xstd = np.zeros(1), np.ones(1)
-            self._realxdata = self._xdata
-        if scaley:
-            umean, ustd = np.mean(self._ydata, axis=0, keepdims=True), np.std(self._ydata, axis=0, keepdims=True)
-            _checkstd(ustd, tol=1e-3)
-            self._realydata = self._ydata.copy()
-        else:
-            umean, ustd = np.zeros(1), np.ones(1)
-            self._realydata = self._ydata
+        xmean, xstd = _getStandardData(self._xdata, scalex)
+        umean, ustd = _getStandardData(self._ydata, scaley)
+
         self._xdata = (self._xdata - xmean) / xstd
         self._ydata = (self._ydata - umean) / ustd
         self._xmean, self._xstd = xmean, xstd
@@ -272,18 +244,13 @@ class labelFactory(Factory):
             self.lstData.append(xdata)
             self.lstLabel.append(lbl*np.ones(len(xdata), dtype=np.int))
         # get whole data
-        self._realxdata = np.concatenate(self.lstData, axis=0)
+        self._xdata = np.concatenate(self.lstData, axis=0)
         self._label = np.concatenate(self.lstLabel, axis=0)
         self._ydata = self._label
         self.numLabel = len(self.lstLabel)
-        if scalex:
-            self._xmean = np.mean(self._realxdata, axis=0, keepdims=True)
-            self._xstd = np.std(self._realxdata, axis=0, keepdims=True)
-            _checkstd([self._xstd], tol=1e-3)
-            self._xdata = (self._realxdata - self._xmean) / self._xstd
-        else:
-            self._xmean, self._xstd = np.zeros(1), np.ones(1)
-            self._xdata = self._realxdata
+        self._xmean, self._xstd = _getStandardData(data, scalex)
+        self._xdata = (self._xdata - self._xmean) / self._xstd
+
         self.numData = len(self._xdata)
         self._xdata = self._xdata.astype(np.float32)  # make it float
         self.xmean, self.xstd = self._xmean, self._xstd
