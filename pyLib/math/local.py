@@ -12,7 +12,7 @@ local.py
 Tools for analyzing local info
 """
 import numpy as np
-from sklearn.preprocessing import StandardScaler
+from .stat import stdify, destdify, getMeanStd, getStandardData
 try:
     import pyflann
 except:
@@ -27,19 +27,16 @@ class Query(object):
         :param A: ndarray, features being compared against
         :param B: ndarray/None, the response
         :param qrynum: int, number of neighbors
-        :param scale: bool, if we use standard scaler
+        :param scale: getMeanStd compatible argument
         """
-        self.A = A
+        self.A_us = A
         self.B = B
         self.flann = pyflann.FLANN()
-        self.params = self.flann.build_index(A, target_precision=0.9, log_level='info')
         self.querynum = qrynum
         self.checks = 16  # do not know what this means
-        self.ndata = len(self.A)
-        self.scale = scale
-        if scale:
-            self.scaler = StandardScaler()
-            self.A = self.scaler.fit_transform(A)
+        self.ndata = len(A)
+        self.A, self.mean_, self.std_ = getStandardData(A, scale, True)
+        self.params = self.flann.build_index(self.A, target_precision=0.9, log_level='info')
 
     def __len__(self):
         return self.ndata
@@ -47,10 +44,9 @@ class Query(object):
     def getInd(self, x0):
         if x0.ndim == 1:
             x0 = np.expand_dims(x0, axis=0)
+        x0 = stdify(x0, self.mean_, self.std_)
         if x0.dtype != self.A.dtype:
             x0 = x0.astype(self.A.dtype)
-        if self.scale:
-            x0 = self.scaler.transform(x0)
         result, dis = self.flann.nn_index(x0, self.querynum, checks=self.checks)
         return {'index': np.squeeze(result), 'dist': np.squeeze(dis)}
 

@@ -9,7 +9,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import numpy as np
 import os
 import cPickle as pkl
-from torchUtil import _checkstd, _getStandardData
+from ..math.stat import getStandardData
 
 
 """
@@ -139,9 +139,7 @@ class unaryKeyFactory(unaryFactory):
         else:
             self._data = tmp
         self.numData = len(self._data)
-        xmean, xstd = _getStandardData(self._data, scalex)
-        self._data = (self._data - xmean) / xstd
-        self._xmean, self._xstd = xmean, xstd
+        self._data, self._xmean, self._xstd = getStandardData(self._data, scalex, True)
         self._data = self._data.astype(np.float32)  # convert to float
         self.xmean, self.xstd = self._xmean, self._xstd
         self._xname = xnm  # actually useless
@@ -191,13 +189,9 @@ class keyFactory(Factory):
         else:
             self._ydata = tmp[ynm]
         self.numData = len(self._xdata)
-        xmean, xstd = _getStandardData(self._xdata, scalex)
-        umean, ustd = _getStandardData(self._ydata, scaley)
+        self._xdata, self._xmean, self._xstd = getStandardData(self._xdata, scalex, True)
+        self._ydata, self._ymean, self._ystd = getStandardData(self._ydata, scaley, True)
 
-        self._xdata = (self._xdata - xmean) / xstd
-        self._ydata = (self._ydata - umean) / ustd
-        self._xmean, self._xstd = xmean, xstd
-        self._ymean, self._ystd = umean, ustd
         self._xdata = self._xdata.astype(np.float32)  # convert to float
         self._ydata = self._ydata.astype(np.float32)
         self.xmean, self.xstd = self._xmean, self._xstd
@@ -248,8 +242,7 @@ class labelFactory(Factory):
         self._label = np.concatenate(self.lstLabel, axis=0)
         self._ydata = self._label
         self.numLabel = len(self.lstLabel)
-        self._xmean, self._xstd = _getStandardData(data, scalex)
-        self._xdata = (self._xdata - self._xmean) / self._xstd
+        self._xdata, self._xmean, self._xstd = getStandardData(data, scalex, True)
 
         self.numData = len(self._xdata)
         self._xdata = self._xdata.astype(np.float32)  # make it float

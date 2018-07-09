@@ -13,61 +13,7 @@ import matplotlib.pyplot as plt
 import pickle as pickle
 from functools import partial
 import os
-from ..math.stat import destdify, stdify
-
-
-def _checkstd(args, tol=1e-3):
-    '''Find those data with std < 1e-3, we do not change it'''
-    if isinstance(args, list):
-        for arg in args:
-            if isinstance(arg, np.ndarray):
-                arg[arg < tol] = 1.0
-    elif isinstance(args, np.ndarray):
-        args[args < tol] = 1.0
-    else:
-        raise NotImplementedError
-
-
-def _getIndAlongAxis(x, axis, ind):
-    slc = [slice(None)] * x.ndim
-    slc[axis] = ind
-    return x[slc]
-
-
-def _getStandardData(data, cols=None, axis=0):
-    """Standardize a data, taken into consideration that certain data has to be scaled in the same metric.
-
-    :param data: ndarray, the data to be standardized
-    :param cols: a list or single one ndarray, the columns that have to be scaled at the same time.
-    """
-    # check if we have to do anything
-    if isinstance(cols, bool) and not cols:
-        return np.array([0]), np.array([1])
-
-    # first step, we proceed as usual
-    mean = np.mean(data, axis=axis, keepdims=True)
-    std = np.std(data, axis=axis, keepdims=True)
-
-    def modify_one_piece(col):
-        mean_ = np.mean(_getIndAlongAxis(data, axis, col))
-        std_ = np.std(_getIndAlongAxis(data, axis, col))
-        if axis == 0:
-            mean[0, col] = mean_
-            std[0, col] = std_
-        else:
-            mean[col] = mean_
-            std[col] = std_
-
-    if not isinstance(cols, bool) and cols is not None:
-        if isinstance(cols, np.ndarray):  # only one part
-            modify_one_piece(cols)
-        else:
-            for col in cols:
-                modify_one_piece(col)
-
-    # finally remove those with small std
-    _checkstd(std)
-    return mean, std
+from ..math.stat import destdify, stdify, getStandardData
 
 
 class GaoNet(nn.Module):

@@ -6,7 +6,7 @@ from .dataLoader import dataLoader, keyFactory, vecKeyFactory, labelFactory, sub
 from .torchUtil import GaoNet, modelLoader, modelLoaderV2, plotError, encoderLoader, svcLoader, recordStep0, model2cpu
 from .torchUtil import autoEncoder as AutoEncoder
 from .MoM import MoMNet, momLoader
-from .torchUtil import _getStandardData as getStandardData
+from ..math.stat import getStandardData
 
 # use pretty names
 from .train import trainer as Trainer
