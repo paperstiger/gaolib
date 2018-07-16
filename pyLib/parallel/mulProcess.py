@@ -79,8 +79,12 @@ class mulProcess(object):
                 argsin.extend(args)
             self.MCs.append(monteCarlo(fun, *argsin, **kwargs))
         manager = Manager()
-        self.return_dict = manager.dict()
+        self.fun = fun
         self.nProcess = nProcess
+        self.listi = lsti
+        self.args = args
+        self.kwargs = kwargs
+        self.return_dict = manager.dict()
 
     def run(self, **kwargs):
         """Run the simulation in multiple processes.
@@ -103,6 +107,13 @@ class mulProcess(object):
             except:
                 print('Error occurs at %d' % i)
         return results
+
+    def debug(self):
+        """Run the simulation in debug mode.
+
+        In debug mode, we call the function directly in current process so pdb can add breakpoints.
+        """
+        self.fun(self.listi[0], *self.args, **self.kwargs)
 
 
 def getTaskSplit(num, nProcess):
