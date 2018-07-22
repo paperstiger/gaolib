@@ -14,7 +14,7 @@ Easy arguments
 import argparse
 import re
 import warnings
-from stringio import numRe, getNumber
+from .stringio import numRe, getNumber
 
 
 _find_letter_pattern_ = re.compile(r'^([a-zA-Z]+)')  # this find first word
