@@ -57,7 +57,7 @@ def plot(x, y=None, z=None, ax=None, axis=1, noz=False, show=False, scatter=Fals
             tz = None  # y is not None, z is None, then only 2d
     # construct a dict
     cfgDct = dict()
-    allowKeys = ['color', 'c', 'label', 'linestyle', 'ls', 'linewidth', 'lw', 'marker']
+    allowKeys = ['color', 'c', 's', 'label', 'linestyle', 'ls', 'linewidth', 'lw', 'marker']
     use_downsample = False
     if 'use_num' in kwargs:
         use_num = int(kwargs['use_num'])

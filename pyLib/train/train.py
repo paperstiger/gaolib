@@ -48,6 +48,7 @@ class trainer(object):
         self.numEpoch = kwargs.get('epoch', 10)
         self.lr = kwargs.get('lr', 1e-3)
         self.errorBackStep = kwargs.get('errorbackstep', 1000)
+        self.epochBackStep = kwargs.get('epochbackstep', 10)
         self.recordFreq = kwargs.get('recordfreq', 10)
         # for periodic checking to avoid slow progress
         self.enableTimer = kwargs.get('enabletimer', 1)
@@ -64,6 +65,76 @@ class trainer(object):
 
     def getTrainError(self):
         return self.getTestLoss(self.trainLder)
+
+    def train_epoch(self, saveName=None):
+        """Train the model epoch by epoch so it is slightly different from train.
+
+        I remove many arguments since they are not that useful.
+        I will check training and test error at each epoch
+        """
+        # record loss for both training and test set
+        maxRecordNum = self.numEpoch
+        checkTestError = None  # this tuple contains index and value
+        epochBackStep = self.epochBackStep
+        trainerror = np.zeros(maxRecordNum)
+        testerror = []  # a list since it might contain several things
+        trainEnd = ''
+
+        # record at entry
+        testerror0 = self.getTestLoss()
+        train_size = self.trainLder.numData
+
+        # begin training
+        for epoch in range(self.numEpoch):
+            train_loss_sum = 0
+            for idx, batch_data in enumerate(self.trainLder):
+                self.optimizer.zero_grad()
+                if self.unary == 0:
+                    feedy = Variable(batch_data[self.yname], requires_grad=False).cuda()
+                    feedx = Variable(batch_data[self.xname], requires_grad=False).cuda()
+                else:
+                    feedy = Variable(batch_data, requires_grad=False).float().cuda()
+                    feedx = feedy
+                predy = self.net(feedx)
+                trainloss = self.loss(predy, feedy)
+                trainloss.backward()
+                train_loss_sum += trainloss.cpu().data.numpy() * len(feedx)
+                self.optimizer.step()
+            # record average train loss
+            trainerror[epoch] = train_loss_sum / train_size
+            # evaluate on test set
+            errtest = self.getTestLoss()
+            testerror.append(errtest)
+            print('Epoch ', epoch, 'train loss ', trainerror[epoch], 'test loss ', testerror[-1])
+            # check if we have decreasing test error
+            if checkTestError is None:
+                checkTestError = (epoch, errtest)
+            elif self.gtfun(checkTestError[1], errtest):
+                checkTestError = (epoch, errtest)
+            elif epoch > checkTestError[0] + epochBackStep:
+                trainEnd = 'no improve'
+                break
+
+        # check if we truly exit in case numEpoch is not high enough
+        if trainEnd == 'no improve':
+            print('\nTraining terminated since no progress is made within %d epoch' % (epochBackStep))
+        # truncate
+        trainerror = trainerror[:epoch]
+        testerror = testerror[:epoch]
+
+        # output
+        with open(self.txtname, 'a') as f:
+            f.write('%s\n' % datetime.datetime.now())
+            recordStep0(testerror0, saveName, self.txtname)
+            plotError(trainerror, testerror, 1, None, False, False, txtname=self.txtname, mdlname=saveName)
+        # we save model and training errors
+        if saveName is not None:
+            model = {'model': self.net, 'trainerror': trainerror, 'testerror': testerror}
+            if hasattr(self.trainLder, 'xmean'):
+                model['xScale'] = [self.trainLder.xmean, self.trainLder.xstd]
+            if hasattr(self.trainLder, 'ymean'):
+                model['yScale'] = [self.trainLder.ymean, self.trainLder.ystd]
+            torch.save(model, saveName)
 
     def train(self, saveName=None, threshold=None, additional=None, ptmode=True, statedict=False):
         # record loss for both training and test set
@@ -205,7 +276,7 @@ class trainer(object):
             dL = lder
         rst = []
         namex, namey = self.xname, self.yname
-        nData = self.testLder.getNumData()
+        nData = dL.getNumData()
         for idx, batch_data in enumerate(dL):
             if self.unary == 0:
                 lenData = len(batch_data[namex])
@@ -242,6 +313,7 @@ def genFromDefaultConfig(**kwargs):
     batch_size: int, size of minibatch for sgd, default 64
     test_batch_size: int, size of minibatch for evaluating test set; -1 means all, default -1
     errorbackstep: int, if test error has no improvement within this steps, quit training, default 300
+    epochbackstep: int, if test error has no improvement within this epoch, quit training, default 10
     trainsize: float, split of training and test set size, default 0.8
     recordfreq: int, frequency of recording of test errors, default 10
     namex: str, key that maps to input, default 'x'
@@ -251,15 +323,16 @@ def genFromDefaultConfig(**kwargs):
     dataname: str, name for the data, might be unnecessary, default 'data/data.npz'
     """
     defaultdict = {
-                "network": [
-                    [1, 1, 1]
-                    ],
+                "network":  [
+                            [1, 1, 1]
+                            ],
                 "neton": [1],
                 "lr": 1e-3,
                 "epoch": 1500,
                 "batch_size": 64,
                 "test_batch_size": -1,
                 "errorbackstep": 300,
+                "epochbackstep": 8,
                 "trainsize": 0.8,
                 "recordfreq": 10,
                 "namex": "x",
@@ -273,7 +346,7 @@ def genFromDefaultConfig(**kwargs):
     return defaultdict
 
 
-def trainOne(config, data, scale_back=True, seed=None, is_reg_task=True, x0_name='x0', net=None, scalex=True, scaley=True):
+def trainOne(config, data, scale_back=False, seed=None, is_reg_task=True, x0_name='x0', net=None, scalex=True, scaley=True):
     """Train a network and save it somewhere.
 
     It handles naive regression and classification task if GaoNet is used.
@@ -285,7 +358,7 @@ def trainOne(config, data, scale_back=True, seed=None, is_reg_task=True, x0_name
     ----------
     config : dict, containing training parameters
     data : dict, containing data for training
-    scale_back : bool, if we calculate smooth L1 loss in original scale
+    scale_back : bool, if we calculate smooth L1 loss in original scale (default False)
     seed : int, seeder for random
     is_reg_task : bool, if we are training a regression task instead of classification
     x0_name : str, the name of x in each cluster when classification task is performed
@@ -299,6 +372,7 @@ def trainOne(config, data, scale_back=True, seed=None, is_reg_task=True, x0_name
     lr = config['lr']
     recordfreq = config['recordfreq']
     errorbackstep = config['errorbackstep']
+    epochbackstep = config['epochbackstep']
     if is_reg_task:
         namex = config.get('namex', 'x')
         namey = config.get('namey', 'y')
@@ -306,7 +380,7 @@ def trainOne(config, data, scale_back=True, seed=None, is_reg_task=True, x0_name
         factory.shuffle(seed)
     else:
         nCluster = len(data)
-        nameLblPair = [('x%d'%i, i) for i in range(nCluster)]
+        nameLblPair = [('x%d' % i, i) for i in range(nCluster)]
         if isinstance(data['x0'], dict):
             factory = labelFactory(data, nameLblPair, xfun=lambda x: x[x0_name], scalex=scalex)
         else:
@@ -329,6 +403,7 @@ def trainOne(config, data, scale_back=True, seed=None, is_reg_task=True, x0_name
         ymean = Variable(torch.from_numpy(factory.ymean).float()).cuda()
         ystd = Variable(torch.from_numpy(factory.ystd).float()).cuda()
         l1loss = torch.nn.SmoothL1Loss(reduce=False)
+        l1lossreduce = torch.nn.SmoothL1Loss(reduce=True)
 
         # define the loss function for trajectory regression uisng smooth l1 loss
         def testRegLoss(predy, feedy):
@@ -337,13 +412,14 @@ def trainOne(config, data, scale_back=True, seed=None, is_reg_task=True, x0_name
             lossy1y2 = l1loss(y1, y2)
             loss = torch.mean(lossy1y2)
             return loss
-            if scale_back:
-                testloss = testLoss
-            else:
-                testloss = l1loss
 
-        trner = trainer(net, trainLder, testLder, testRegLoss,
-                    epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep)
+        if scale_back:
+            testloss = testRegLoss
+        else:
+            testloss = l1lossreduce
+
+        trner = trainer(net, trainLder, testLder, testloss,
+                        epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep)
     else:
         celoss = torch.nn.CrossEntropyLoss()
 
@@ -361,9 +437,9 @@ def trainOne(config, data, scale_back=True, seed=None, is_reg_task=True, x0_name
             return arg1[1] < arg2[1]
 
         trner = trainer(net, trainLder, testLder, celoss, testloss=testClassifyLoss, gtfun=greater,
-                    epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep)
+                        epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, epochbackstep=epochbackstep)
 
-    trner.train(outname, ptmode=True)
+    trner.train_epoch(outname)
 
 
 def trainAutoEncoder(net, data, config, seed=1994, scale=False):
@@ -390,6 +466,7 @@ def trainAutoEncoder(net, data, config, seed=1994, scale=False):
     lr = config['lr']
     recordfreq = config['recordfreq']
     errorbackstep = config['errorbackstep']
+    epochbackstep = config['epochbackstep']
     factory = unaryKeyFactory({'x': data}, 'x', scalex=scale)
     factory.shuffle(seed)
     # split
@@ -409,8 +486,8 @@ def trainAutoEncoder(net, data, config, seed=1994, scale=False):
     l1loss = torch.nn.SmoothL1Loss()
 
     trner = trainer(net, trainLder, testLder, l1loss,
-                    epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, unary=1)
-    trner.train(outname, ptmode=True)
+                    epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, epochbackstep=epochbackstep, unary=1)
+    trner.train_epoch(outname)
 
 
 def _getNetwork(config):
@@ -419,7 +496,7 @@ def _getNetwork(config):
     We note that for backward compatibility, we support [[x,x,x]] type.
 
     """
-    if not 'network' in config:
+    if 'network' not in config:
         return None
     assert isinstance(config['network'], list)
     if isinstance(config['network'][0], list):

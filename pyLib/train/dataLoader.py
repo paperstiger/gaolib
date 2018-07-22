@@ -242,7 +242,7 @@ class labelFactory(Factory):
         self._label = np.concatenate(self.lstLabel, axis=0)
         self._ydata = self._label
         self.numLabel = len(self.lstLabel)
-        self._xdata, self._xmean, self._xstd = getStandardData(data, scalex, True)
+        self._xdata, self._xmean, self._xstd = getStandardData(self._xdata, scalex, True)
 
         self.numData = len(self._xdata)
         self._xdata = self._xdata.astype(np.float32)  # make it float
@@ -360,3 +360,7 @@ class dataLoader(DataLoader):
 
     def getNumData(self):
         return self.dtset.__len__()  # number of data, since len is returning # batches
+
+    @property
+    def numData(self):
+        return self.dtset.__len__()

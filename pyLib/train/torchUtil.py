@@ -110,7 +110,7 @@ def recordStep0(testerror, mdlname, txtname):
         f.write('model: {}\n initial step {}\n'.format(mdlname, testerror))
 
 
-def plotError(trainerror, testerror, freq, figname=None, merge=False, show=False, txtname=None, mdlname=None, fun=None):
+def plotError(trainerror, testerror, freq=1, figname=None, merge=False, show=False, txtname=None, mdlname=None, fun=None):
     # make prediction by plot
     if figname is not None:
         if merge:

@@ -85,6 +85,11 @@ class mulProcess(object):
         self.args = args
         self.kwargs = kwargs
         self.return_dict = manager.dict()
+        self.enable_pid = False
+
+    def enablePID(self):
+        """Enable PID such that the id of the process will be passed automatically"""
+        self.enable_pid = True
 
     def run(self, **kwargs):
         """Run the simulation in multiple processes.
