@@ -38,7 +38,7 @@
 <span id="pylib-math-extnp-module"></span><h2>pyLib.math.extnp module<a class="headerlink" href="#module-pyLib.math.extnp" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="pyLib.math.extnp.blockIndex">
-<code class="descclassname">pyLib.math.extnp.</code><code class="descname">blockIndex</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>rows</em>, <em>cols</em>, <em>order='C'</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.extnp.blockIndex" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.extnp.</code><code class="descname">blockIndex</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>rows</em>, <em>cols</em>, <em>order='C'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/extnp.html#blockIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.extnp.blockIndex" title="Permalink to this definition">¶</a></dt>
 <dd><p>For a matrix block, we return the index of row and columns.</p>
 <p>For a matrix we choose a block using the upper left corner positioned 
 at (i, j) and size (row, col). Each element of the block has row and 
@@ -61,7 +61,7 @@ row or column major order</p>
 Monte-Carlo like approach and only return the norm.</p>
 <dl class="function">
 <dt id="pyLib.math.gradient.finiteDiff">
-<code class="descclassname">pyLib.math.gradient.</code><code class="descname">finiteDiff</code><span class="sig-paren">(</span><em>fun</em>, <em>x</em>, <em>args=()</em>, <em>kwargs={}</em>, <em>f0=None</em>, <em>step=1e-06</em>, <em>method='f'</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.gradient.finiteDiff" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.gradient.</code><code class="descname">finiteDiff</code><span class="sig-paren">(</span><em>fun</em>, <em>x</em>, <em>args=()</em>, <em>kwargs={}</em>, <em>f0=None</em>, <em>step=1e-06</em>, <em>method='f'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/gradient.html#finiteDiff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.gradient.finiteDiff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use finite differentiation to estimate gradient or Jacobian at a point x</p>
 <p>f: the function to be differentiated, must be be like y = f(x, args)
 x: the point to be evaluated, np.ndarray (n,)
@@ -70,7 +70,7 @@ args(,): additional arguments for f</p>
 
 <dl class="function">
 <dt id="pyLib.math.gradient.gradNorm">
-<code class="descclassname">pyLib.math.gradient.</code><code class="descname">gradNorm</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>knn=5</em>, <em>dsrate=1</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.gradient.gradNorm" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.gradient.</code><code class="descname">gradNorm</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>knn=5</em>, <em>dsrate=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/gradient.html#gradNorm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.gradient.gradNorm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given dataset x-y, try to estimate the gradients.
 knn is # neighbors for gradient estimation
 dsrate is downsampling rate, used in eval not build</p>
@@ -78,7 +78,7 @@ dsrate is downsampling rate, used in eval not build</p>
 
 <dl class="function">
 <dt id="pyLib.math.gradient.verboseGradNorm">
-<code class="descclassname">pyLib.math.gradient.</code><code class="descname">verboseGradNorm</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>knn=5</em>, <em>dsrate=1</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.gradient.verboseGradNorm" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.gradient.</code><code class="descname">verboseGradNorm</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>knn=5</em>, <em>dsrate=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/gradient.html#verboseGradNorm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.gradient.verboseGradNorm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get complete information for gradient of the field.
 Aiming at detecting discontinuity.</p>
 </dd></dl>
@@ -90,36 +90,36 @@ Aiming at detecting discontinuity.</p>
 <p>Tools for analyzing local info</p>
 <dl class="class">
 <dt id="pyLib.math.local.Query">
-<em class="property">class </em><code class="descclassname">pyLib.math.local.</code><code class="descname">Query</code><span class="sig-paren">(</span><em>A</em>, <em>B=None</em>, <em>qrynum=5</em>, <em>scale=False</em>, <em>distance_type='minkowski'</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.local.Query" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyLib.math.local.</code><code class="descname">Query</code><span class="sig-paren">(</span><em>A</em>, <em>B=None</em>, <em>qrynum=5</em>, <em>scale=False</em>, <em>distance_type='minkowski'</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/local.html#Query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.local.Query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="pyLib.math.local.Query.getA">
-<code class="descname">getA</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.local.Query.getA" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getA</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/local.html#Query.getA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.local.Query.getA" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pyLib.math.local.Query.getAB">
-<code class="descname">getAB</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.local.Query.getAB" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getAB</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/local.html#Query.getAB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.local.Query.getAB" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pyLib.math.local.Query.getB">
-<code class="descname">getB</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.local.Query.getB" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getB</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/local.html#Query.getB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.local.Query.getB" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pyLib.math.local.Query.getInd">
-<code class="descname">getInd</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.local.Query.getInd" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getInd</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/local.html#Query.getInd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.local.Query.getInd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pyLib.math.local.Query.getIndex">
-<code class="descname">getIndex</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.local.Query.getIndex" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getIndex</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/local.html#Query.getIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.local.Query.getIndex" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pyLib.math.local.Query.query">
-<code class="descname">query</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.local.Query.query" title="Permalink to this definition">¶</a></dt>
+<code class="descname">query</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/local.html#Query.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.local.Query.query" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -131,19 +131,19 @@ Aiming at detecting discontinuity.</p>
 <p>Functions associated with statistics</p>
 <dl class="function">
 <dt id="pyLib.math.stat.checkstd">
-<code class="descclassname">pyLib.math.stat.</code><code class="descname">checkstd</code><span class="sig-paren">(</span><em>std</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.stat.checkstd" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.stat.</code><code class="descname">checkstd</code><span class="sig-paren">(</span><em>std</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/stat.html#checkstd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.stat.checkstd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assume it is a 1 by n vector</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pyLib.math.stat.destdify">
-<code class="descclassname">pyLib.math.stat.</code><code class="descname">destdify</code><span class="sig-paren">(</span><em>x</em>, <em>mean</em>, <em>std</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.stat.destdify" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.stat.</code><code class="descname">destdify</code><span class="sig-paren">(</span><em>x</em>, <em>mean</em>, <em>std</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/stat.html#destdify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.stat.destdify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recover to original x</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pyLib.math.stat.getMeanStd">
-<code class="descclassname">pyLib.math.stat.</code><code class="descname">getMeanStd</code><span class="sig-paren">(</span><em>data</em>, <em>cols=None</em>, <em>axis=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.stat.getMeanStd" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.stat.</code><code class="descname">getMeanStd</code><span class="sig-paren">(</span><em>data</em>, <em>cols=None</em>, <em>axis=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/stat.html#getMeanStd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.stat.getMeanStd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Standardize a data, taken into consideration that certain data has to be scaled in the same metric.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -167,7 +167,7 @@ Aiming at detecting discontinuity.</p>
 
 <dl class="function">
 <dt id="pyLib.math.stat.getPCA">
-<code class="descclassname">pyLib.math.stat.</code><code class="descname">getPCA</code><span class="sig-paren">(</span><em>x</em>, <em>n_components=3</em>, <em>scale=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.stat.getPCA" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.stat.</code><code class="descname">getPCA</code><span class="sig-paren">(</span><em>x</em>, <em>n_components=3</em>, <em>scale=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/stat.html#getPCA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.stat.getPCA" title="Permalink to this definition">¶</a></dt>
 <dd><p>A quick shortcut for performing PCA.</p>
 <p>x : ndarray, the data to be processed
 n_components : int, number of components
@@ -177,19 +177,19 @@ scale : bool, if we apply standard scaler on x</p>
 
 <dl class="function">
 <dt id="pyLib.math.stat.getStandardData">
-<code class="descclassname">pyLib.math.stat.</code><code class="descname">getStandardData</code><span class="sig-paren">(</span><em>data</em>, <em>cols=None</em>, <em>return_meanstd=False</em>, <em>axis=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.stat.getStandardData" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.stat.</code><code class="descname">getStandardData</code><span class="sig-paren">(</span><em>data</em>, <em>cols=None</em>, <em>return_meanstd=False</em>, <em>axis=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/stat.html#getStandardData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.stat.getStandardData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Standardize the dataset, return that value.</p>
 <p>See getMeanStd for detailed documentation.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pyLib.math.stat.l1loss">
-<code class="descclassname">pyLib.math.stat.</code><code class="descname">l1loss</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.stat.l1loss" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.stat.</code><code class="descname">l1loss</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/stat.html#l1loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.stat.l1loss" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pyLib.math.stat.stdify">
-<code class="descclassname">pyLib.math.stat.</code><code class="descname">stdify</code><span class="sig-paren">(</span><em>x</em>, <em>mean=None</em>, <em>std=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.math.stat.stdify" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.math.stat.</code><code class="descname">stdify</code><span class="sig-paren">(</span><em>x</em>, <em>mean=None</em>, <em>std=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/math/stat.html#stdify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.math.stat.stdify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given x, mean, and std, return the standarized x</p>
 </dd></dl>
 

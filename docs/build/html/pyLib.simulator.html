@@ -40,33 +40,33 @@
 A simulator</p>
 <dl class="class">
 <dt id="pyLib.simulator.simulator.Simulator">
-<em class="property">class </em><code class="descclassname">pyLib.simulator.simulator.</code><code class="descname">Simulator</code><span class="sig-paren">(</span><em>sys</em>, <em>method='c'</em>, <em>ctrl=None</em>, <em>dt=0.02</em>, <em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.simulator.simulator.Simulator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyLib.simulator.simulator.</code><code class="descname">Simulator</code><span class="sig-paren">(</span><em>sys</em>, <em>method='c'</em>, <em>ctrl=None</em>, <em>dt=0.02</em>, <em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/simulator/simulator.html#Simulator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.simulator.simulator.Simulator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pyLib.simulator.simulator.TrajPropagate" title="pyLib.simulator.simulator.TrajPropagate"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyLib.simulator.simulator.TrajPropagate</span></code></a></p>
 <p>A simulator that supports controller</p>
 <dl class="method">
 <dt id="pyLib.simulator.simulator.Simulator.setX0">
-<code class="descname">setX0</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.simulator.simulator.Simulator.setX0" title="Permalink to this definition">¶</a></dt>
+<code class="descname">setX0</code><span class="sig-paren">(</span><em>x0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/simulator/simulator.html#Simulator.setX0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.simulator.simulator.Simulator.setX0" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pyLib.simulator.simulator.Simulator.simulate">
-<code class="descname">simulate</code><span class="sig-paren">(</span><em>tspan</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.simulator.simulator.Simulator.simulate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">simulate</code><span class="sig-paren">(</span><em>tspan</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/simulator/simulator.html#Simulator.simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.simulator.simulator.Simulator.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pyLib.simulator.simulator.TrajPropagate">
-<em class="property">class </em><code class="descclassname">pyLib.simulator.simulator.</code><code class="descname">TrajPropagate</code><span class="sig-paren">(</span><em>sys</em>, <em>method='c'</em>, <em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.simulator.simulator.TrajPropagate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyLib.simulator.simulator.</code><code class="descname">TrajPropagate</code><span class="sig-paren">(</span><em>sys</em>, <em>method='c'</em>, <em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/simulator/simulator.html#TrajPropagate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.simulator.simulator.TrajPropagate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="pyLib.simulator.simulator.TrajPropagate.dynwrapper">
-<code class="descname">dynwrapper</code><span class="sig-paren">(</span><em>t</em>, <em>y</em>, <em>u</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.simulator.simulator.TrajPropagate.dynwrapper" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dynwrapper</code><span class="sig-paren">(</span><em>t</em>, <em>y</em>, <em>u</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/simulator/simulator.html#TrajPropagate.dynwrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.simulator.simulator.TrajPropagate.dynwrapper" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pyLib.simulator.simulator.TrajPropagate.onestep">
-<code class="descname">onestep</code><span class="sig-paren">(</span><em>x0</em>, <em>ctrl</em>, <em>t</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.simulator.simulator.TrajPropagate.onestep" title="Permalink to this definition">¶</a></dt>
+<code class="descname">onestep</code><span class="sig-paren">(</span><em>x0</em>, <em>ctrl</em>, <em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyLib/simulator/simulator.html#TrajPropagate.onestep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyLib.simulator.simulator.TrajPropagate.onestep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assume we use constant control for one step, see outcome.</p>
 </dd></dl>
 
