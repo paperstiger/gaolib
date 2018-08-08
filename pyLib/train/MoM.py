@@ -88,7 +88,9 @@ class MoMNet(nn.Module):
 
     def getClusY(self, x):
         """Take x as input, return prediction of y from classifier"""
+        xdim = 100
         if isinstance(x, np.ndarray):
+            xdim = x.ndim
             x = Variable(torch.from_numpy(x).float(), volatile=True).cuda()
         if self.useScale:
             classXmean, classXstd = self.clusScale
@@ -96,7 +98,10 @@ class MoMNet(nn.Module):
         else:
             clsx = x
         clusy = self.clus(clsx)  # get actual prediction, in y, not prob
-        return clusy.cpu().data.numpy()
+        clusy = clusy.cpu().data.numpy()
+        if xdim == 1:
+            clusy = np.squeeze(clusy, axis=0)
+        return clusy
 
     def getPredY(self, x):
         """Take x as input, return predicted y, I do not take care of xScale or yScale since I do not know it"""
@@ -112,6 +117,28 @@ class MoMNet(nn.Module):
             if xdim == 1:
                 predy = np.squeeze(predy, axis=0)
         return predy
+
+    def getPredYi(self, x, i):
+        """Take x as input, use the i-th regressor to predict y."""
+        if isinstance(x, np.ndarray):
+            xdim = x.ndim
+            if xdim == 1:
+                x = np.expand_dims(x, axis=0)
+            feedx = Variable(torch.from_numpy(x).float(), volatile=True).cuda()
+        else:
+            feedx = x
+        if self.useScale:
+            regXmean, regXstd = self.mdlsScale[i][0]
+            feedx = (feedx - regXmean) / regXstd
+        predyi = self.mdls[i](feedx)
+        if self.useScale:
+            regYmean, regYstd = self.mdlsScale[i][1]
+            predyi = predyi * regYstd + regYmean
+        predyi = predyi.cpu().data.numpy()
+        if isinstance(x, np.ndarray):
+            if xdim == 1:
+                predyi = np.squeeze(predyi, axis=0)
+        return predyi
 
     def forward(self, x):  # default setting is here
         # scale x to required scale

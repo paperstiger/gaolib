@@ -16,6 +16,7 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset
 from torchUtil import GaoNet, plotError, recordStep0
 from dataLoader import dataLoader, keyFactory, labelFactory, subFactory, unaryKeyFactory
+from torchUtil import modelLoader
 # from tensorboardX import SummaryWriter
 
 
@@ -346,6 +347,19 @@ def genFromDefaultConfig(**kwargs):
     return defaultdict
 
 
+def writeHeader(msg, fnm=None):
+    """Write some message to models/record.txt"""
+    if fnm is None:
+        fnm = 'models/record.txt'
+    try:
+        with open(fnm, 'a') as f:
+            f.write('\n%s\n' % datetime.datetime.now())
+            f.write(msg)
+            f.write('\n')
+    except:
+        print('error occurs when trying to write a message to %s' % fnm)
+
+
 def trainOne(config, data, scale_back=False, seed=None, is_reg_task=True, x0_name='x0', net=None, scalex=True, scaley=True):
     """Train a network and save it somewhere.
 
@@ -440,6 +454,18 @@ def trainOne(config, data, scale_back=False, seed=None, is_reg_task=True, x0_nam
                         epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, epochbackstep=epochbackstep)
 
     trner.train_epoch(outname)
+
+
+def evalOne(config, x, cuda=False):
+    """Load a model from config, evaluate the model on data x.
+
+    :param config: dict, from calling genTrainConfig
+    :param x: ndarray, input to the model
+    :param cuda: bool, if we enable cudaify of the model
+    """
+    mdl_name = os.path.join(config['outdir'], config['outname'])
+    mdlfun = modelLoader(mdl_name, cuda=cuda)
+    return mdlfun(x)
 
 
 def trainAutoEncoder(net, data, config, seed=1994, scale=False):
