@@ -16,6 +16,18 @@ Subpackages
     pyLib.sympy
     pyLib.train
 
+Submodules
+----------
+
+pyLib.all module
+----------------
+
+.. automodule:: pyLib.all
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Module contents
 ---------------
 

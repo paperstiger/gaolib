@@ -115,6 +115,19 @@ from a forked multiprocessing child</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class for multi processing</p>
 <dl class="method">
+<dt id="pyLib.parallel.mulProcess.mulProcess.debug">
+<code class="descname">debug</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.parallel.mulProcess.mulProcess.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the simulation in debug mode.</p>
+<p>In debug mode, we call the function directly in current process so pdb can add breakpoints.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyLib.parallel.mulProcess.mulProcess.enablePID">
+<code class="descname">enablePID</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.parallel.mulProcess.mulProcess.enablePID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable PID such that the id of the process will be passed automatically</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyLib.parallel.mulProcess.mulProcess.run">
 <code class="descname">run</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.parallel.mulProcess.mulProcess.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the simulation in multiple processes.</p>

@@ -89,6 +89,12 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pyLib.train.MoM.MoMNet.getPredYi">
+<code class="descname">getPredYi</code><span class="sig-paren">(</span><em>x</em>, <em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.MoM.MoMNet.getPredYi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take x as input, use the i-th regressor to predict y.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyLib.train.MoM.MoMNet.getWeights">
 <code class="descname">getWeights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.MoM.MoMNet.getWeights" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -152,6 +158,11 @@ It supports getNumData and negative batch_size(means all)</p>
 <dl class="method">
 <dt id="pyLib.train.dataLoader.dataLoader.getNumData">
 <code class="descname">getNumData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.dataLoader.dataLoader.getNumData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyLib.train.dataLoader.dataLoader.numData">
+<code class="descname">numData</code><a class="headerlink" href="#pyLib.train.dataLoader.dataLoader.numData" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -296,7 +307,7 @@ It returns many functions that can be directly called!!!</p>
 
 <dl class="function">
 <dt id="pyLib.train.torchUtil.encoderLoader">
-<code class="descclassname">pyLib.train.torchUtil.</code><code class="descname">encoderLoader</code><span class="sig-paren">(</span><em>fnm</em>, <em>name='model'</em>, <em>reScale=True</em>, <em>cuda=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.torchUtil.encoderLoader" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.train.torchUtil.</code><code class="descname">encoderLoader</code><span class="sig-paren">(</span><em>model</em>, <em>name='model'</em>, <em>reScale=True</em>, <em>cuda=False</em>, <em>return_encoder=False</em>, <em>return_decoder=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.torchUtil.encoderLoader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the autoEncoder and return two functions</p>
 </dd></dl>
 
@@ -329,7 +340,7 @@ It returns the raw Net and corresponding xScale and yScale</p>
 
 <dl class="function">
 <dt id="pyLib.train.torchUtil.plotError">
-<code class="descclassname">pyLib.train.torchUtil.</code><code class="descname">plotError</code><span class="sig-paren">(</span><em>trainerror</em>, <em>testerror</em>, <em>freq</em>, <em>figname=None</em>, <em>merge=False</em>, <em>show=False</em>, <em>txtname=None</em>, <em>mdlname=None</em>, <em>fun=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.torchUtil.plotError" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.train.torchUtil.</code><code class="descname">plotError</code><span class="sig-paren">(</span><em>trainerror</em>, <em>testerror</em>, <em>freq=1</em>, <em>figname=None</em>, <em>merge=False</em>, <em>show=False</em>, <em>txtname=None</em>, <em>mdlname=None</em>, <em>fun=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.torchUtil.plotError" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -351,6 +362,25 @@ y = f(x, o)
 where x is the collision trajectory, o is obstacle, and y is another collision-free traj
 We hope we can directly learn the map so a good initial guess can be provided for later use</p>
 <dl class="function">
+<dt id="pyLib.train.train.evalOne">
+<code class="descclassname">pyLib.train.train.</code><code class="descname">evalOne</code><span class="sig-paren">(</span><em>config</em>, <em>x</em>, <em>cuda=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.train.evalOne" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a model from config, evaluate the model on data x.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>config</strong> – dict, from calling genTrainConfig</li>
+<li><strong>x</strong> – ndarray, input to the model</li>
+<li><strong>cuda</strong> – bool, if we enable cudaify of the model</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pyLib.train.train.genFromDefaultConfig">
 <code class="descclassname">pyLib.train.train.</code><code class="descname">genFromDefaultConfig</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.train.genFromDefaultConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a default configuration dict to avoid things.</p>
@@ -361,6 +391,7 @@ epoch: int, number of learning epoch, default 1500
 batch_size: int, size of minibatch for sgd, default 64
 test_batch_size: int, size of minibatch for evaluating test set; -1 means all, default -1
 errorbackstep: int, if test error has no improvement within this steps, quit training, default 300
+epochbackstep: int, if test error has no improvement within this epoch, quit training, default 10
 trainsize: float, split of training and test set size, default 0.8
 recordfreq: int, frequency of recording of test errors, default 10
 namex: str, key that maps to input, default ‘x’
@@ -389,7 +420,7 @@ scale : if we scale the data to make it normal</p>
 
 <dl class="function">
 <dt id="pyLib.train.train.trainOne">
-<code class="descclassname">pyLib.train.train.</code><code class="descname">trainOne</code><span class="sig-paren">(</span><em>config</em>, <em>data</em>, <em>scale_back=True</em>, <em>seed=1994</em>, <em>is_reg_task=True</em>, <em>x0_name='x0'</em>, <em>net=None</em>, <em>scalex=True</em>, <em>scaley=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.train.trainOne" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyLib.train.train.</code><code class="descname">trainOne</code><span class="sig-paren">(</span><em>config</em>, <em>data</em>, <em>scale_back=False</em>, <em>seed=None</em>, <em>is_reg_task=True</em>, <em>x0_name='x0'</em>, <em>net=None</em>, <em>scalex=True</em>, <em>scaley=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.train.trainOne" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train a network and save it somewhere.</p>
 <p>It handles naive regression and classification task if GaoNet is used.
 Training hyperparameters are listed in config, which is a dictionary
@@ -397,7 +428,7 @@ Data is a dictionary, for regression task, it has at least two entries, specifie
 For classification task, it has keys like x0/x1, etc. each is another dict that has x0_name as key or ndarray</p>
 <p>config : dict, containing training parameters
 data : dict, containing data for training
-scale_back : bool, if we calculate smooth L1 loss in original scale
+scale_back : bool, if we calculate smooth L1 loss in original scale (default False)
 seed : int, seeder for random
 is_reg_task : bool, if we are training a regression task instead of classification
 x0_name : str, the name of x in each cluster when classification task is performed
@@ -433,6 +464,20 @@ The user has to provide a trainSet and testSet, a net, a fun for loss, and other
 <code class="descname">train</code><span class="sig-paren">(</span><em>saveName=None</em>, <em>threshold=None</em>, <em>additional=None</em>, <em>ptmode=True</em>, <em>statedict=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.train.trainer.train" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="pyLib.train.train.trainer.train_epoch">
+<code class="descname">train_epoch</code><span class="sig-paren">(</span><em>saveName=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.train.trainer.train_epoch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model epoch by epoch so it is slightly different from train.</p>
+<p>I remove many arguments since they are not that useful.
+I will check training and test error at each epoch</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pyLib.train.train.writeHeader">
+<code class="descclassname">pyLib.train.train.</code><code class="descname">writeHeader</code><span class="sig-paren">(</span><em>msg</em>, <em>fnm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyLib.train.train.writeHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write some message to models/record.txt</p>
 </dd></dl>
 
 </div>

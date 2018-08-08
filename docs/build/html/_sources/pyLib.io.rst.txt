@@ -12,6 +12,14 @@ pyLib.io.argument module
     :undoc-members:
     :show-inheritance:
 
+pyLib.io.codeio module
+----------------------
+
+.. automodule:: pyLib.io.codeio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pyLib.io.fileio module
 ----------------------
 
