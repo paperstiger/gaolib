@@ -14,6 +14,7 @@ Tools for analyzing local info
 import numpy as np
 from .stat import stdify, destdify, getMeanStd, getStandardData
 from sklearn.neighbors import NearestNeighbors
+import numba
 
 
 class Query(object):
@@ -39,7 +40,7 @@ class Query(object):
         self.B = B
         # pyflann.set_distance_type(distance_type)
         # self.flann = pyflann.FLANN(**kw)
-        self.nn = NearestNeighbors(qrynum, metric=distance_type)
+        self.nn = NearestNeighbors(qrynum, metric=distance_type, n_jobs=-1, **kw)
         self.querynum = qrynum
         # self.checks = 16  # do not know what this means
         self.ndata = len(A)
@@ -81,3 +82,68 @@ class Query(object):
             raise Exception('B is None.')
         inds = self.getInd(x0)['index']
         return self.A[inds], self.B[inds]
+
+
+def get_nn_index(x, qryx=None, n_neighbor=5, scale=True, return_dist=False, distance_type='minkowski', **kw):
+    """Given a dataset, return a matrix of nearest neighbors.
+
+    Parameters
+    ----------
+    x: ndarray, the dataset to be searched within.
+    qryx: ndarray, the dataset that needs neighbors.
+    See Query for other function arguments
+    Return
+    ------
+    index: the index of the nearest neighbors
+    dist: distance to neighbors, return only if return_dist is True
+    """
+    qry = Query(x, None, n_neighbor, scale, distance_type, **kw)
+    if qryx is None:
+        qryx = x
+    rst = qry.getInd(qryx)
+    if return_dist:
+        return rst['index'], rst['dist']
+    else:
+        return rst['index']
+
+
+@numba.njit(fastmath=True)
+def get_affinity_matrix_xy(x, y, nn_ind, norm, rm_col_one=True, maxdx=0):
+    """Construct an affinity matrix, return distances.
+
+    :param x: ndarray, (n_sample, dim_x) the x data matrix
+    :param y: ndarray, (n_sample, dim_y) the y data matrix
+    :param nn_ind: ndarray, integer, (n_sample, n_neighbors) the affinity matrix
+    :param rm_col_one: bool, if we remove the first column of nn_ind to save memory
+    :param maxdx: float, if not 0, then distance in x larger than this value is ignored
+    :return distx: ndarray, (n_sample*n_neighbors,) the distance in x
+    :return disty: ndarray, (n_sample*n_neighbors,) the distance in y
+    :return row: ndarray, integer, (n_sample*n_neighbors,) for constructing sparse matrix
+    :return col: ndarray, integer, (n_sample*n_neighbors,) for constructing sparse matrix
+    """
+    n_sample = x.shape[0]
+    n_neighbor = nn_ind.shape[1]
+    start_col = 0
+    if rm_col_one:
+        n_neighbor -= 1
+        start_col = 1
+    if maxdx == 0:
+        maxdx = np.inf
+    len_dist = n_sample * n_neighbor
+    distx = np.zeros(len_dist)
+    disty = np.zeros(len_dist)
+    out_row = np.zeros(len_dist, dtype=np.int64)
+    out_col = np.zeros(len_dist, dtype=np.int64)
+    # loop over the data
+    idx = 0
+    for i in range(n_sample):
+        for j in range(start_col, n_neighbor + start_col):
+            dist_in_x = np.linalg.norm(x[i] - x[nn_ind[i, j]], norm)
+            if dist_in_x > maxdx:
+                continue
+            out_row[idx] = i
+            out_col[idx] = nn_ind[i, j]
+            distx[idx] = dist_in_x
+            disty[idx] = np.linalg.norm(y[i] - y[out_col[idx]], norm)
+            idx += 1
+    return distx[:idx], disty[:idx], out_row[:idx], out_col[:idx]

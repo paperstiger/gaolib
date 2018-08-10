@@ -9,3 +9,5 @@ from .gradient import gradNorm, verboseGradNorm, finiteDiff
 from .local import Query
 from .stat import stdify, destdify, l1loss, getPCA, getStandardData
 from .extnp import blockIndex
+from .local import get_affinity_matrix_xy as getAffinityXY
+from .local import get_nn_index as getNNIndex
