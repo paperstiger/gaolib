@@ -130,6 +130,7 @@ class trainer(object):
             plotError(trainerror, testerror, 1, None, False, False, txtname=self.txtname, mdlname=saveName)
         # we save model and training errors
         if saveName is not None:
+            self.net.cpu()
             model = {'model': self.net, 'trainerror': trainerror, 'testerror': testerror}
             if hasattr(self.trainLder, 'xmean'):
                 model['xScale'] = [self.trainLder.xmean, self.trainLder.xstd]
@@ -253,6 +254,7 @@ class trainer(object):
                 pass
         # we save model and training errors
         if saveName is not None:
+            self.net.cpu()
             if statedict:
                 model = {'model': self.net.state_dict(), 'trainerror': trainerror, 'testerror': testerror}
             else:
@@ -360,7 +362,7 @@ def writeHeader(msg, fnm=None):
         print('error occurs when trying to write a message to %s' % fnm)
 
 
-def trainOne(config, data, scale_back=False, seed=None, is_reg_task=True, x0_name='x0', net=None, scalex=True, scaley=True):
+def trainOne(config, data, scale_back=False, seed=None, loss=None, is_reg_task=True, x0_name='x0', net=None, scalex=True, scaley=True):
     """Train a network and save it somewhere.
 
     It handles naive regression and classification task if GaoNet is used.
@@ -374,6 +376,7 @@ def trainOne(config, data, scale_back=False, seed=None, is_reg_task=True, x0_nam
     data : dict, containing data for training
     scale_back : bool, if we calculate smooth L1 loss in original scale (default False)
     seed : int, seeder for random
+    loss : callable, custom loss function
     is_reg_task : bool, if we are training a regression task instead of classification
     x0_name : str, the name of x in each cluster when classification task is performed
     net : a nn.Module object, if it is used, we do not construct GaoNet
@@ -413,45 +416,48 @@ def trainOne(config, data, scale_back=False, seed=None, is_reg_task=True, x0_nam
     else:
         net.cuda()
 
-    if is_reg_task:
-        ymean = Variable(torch.from_numpy(factory.ymean).float()).cuda()
-        ystd = Variable(torch.from_numpy(factory.ystd).float()).cuda()
-        l1loss = torch.nn.SmoothL1Loss(reduce=False)
-        l1lossreduce = torch.nn.SmoothL1Loss(reduce=True)
-
-        # define the loss function for trajectory regression uisng smooth l1 loss
-        def testRegLoss(predy, feedy):
-            y1 = predy * ystd
-            y2 = feedy * ystd
-            lossy1y2 = l1loss(y1, y2)
-            loss = torch.mean(lossy1y2)
-            return loss
-
-        if scale_back:
-            testloss = testRegLoss
-        else:
-            testloss = l1lossreduce
-
-        trner = trainer(net, trainLder, testLder, testloss,
-                        epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep)
+    if loss is not None:
+        trner = trainer(net, trainLder, testLder, loss, epoch=epoch, lr=lr, recordfreq=recordfreq, epochbackstep=epochbackstep)
     else:
-        celoss = torch.nn.CrossEntropyLoss()
+        if is_reg_task:
+            ymean = Variable(torch.from_numpy(factory.ymean).float()).cuda()
+            ystd = Variable(torch.from_numpy(factory.ystd).float()).cuda()
+            l1loss = torch.nn.SmoothL1Loss(reduce=False)
+            l1lossreduce = torch.nn.SmoothL1Loss(reduce=True)
 
-        # define the loss function for classification using cross entropy
-        def testClassifyLoss(predy, feedy):
-            """Return not only the loss but also accuracy."""
-            loss1 = celoss(predy, feedy)
-            maxs_x, indices_x = torch.max(predy, dim=1)  # find max along row
-            correct = torch.eq(feedy, indices_x)
-            correct = correct.float()
-            accuracy = torch.mean(correct)
-            return torch.cat((loss1, accuracy))
+            # define the loss function for trajectory regression uisng smooth l1 loss
+            def testRegLoss(predy, feedy):
+                y1 = predy * ystd
+                y2 = feedy * ystd
+                lossy1y2 = l1loss(y1, y2)
+                loss = torch.mean(lossy1y2)
+                return loss
 
-        def greater(arg1, arg2):
-            return arg1[1] < arg2[1]
+            if scale_back:
+                testloss = testRegLoss
+            else:
+                testloss = l1lossreduce
 
-        trner = trainer(net, trainLder, testLder, celoss, testloss=testClassifyLoss, gtfun=greater,
-                        epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, epochbackstep=epochbackstep)
+            trner = trainer(net, trainLder, testLder, testloss,
+                            epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, epochbackstep=epochbackstep)
+        else:
+            celoss = torch.nn.CrossEntropyLoss()
+
+            # define the loss function for classification using cross entropy
+            def testClassifyLoss(predy, feedy):
+                """Return not only the loss but also accuracy."""
+                loss1 = celoss(predy, feedy)
+                maxs_x, indices_x = torch.max(predy, dim=1)  # find max along row
+                correct = torch.eq(feedy, indices_x)
+                correct = correct.float()
+                accuracy = torch.mean(correct)
+                return torch.cat((loss1, accuracy))
+
+            def greater(arg1, arg2):
+                return arg1[1] < arg2[1]
+
+            trner = trainer(net, trainLder, testLder, celoss, testloss=testClassifyLoss, gtfun=greater,
+                            epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, epochbackstep=epochbackstep)
 
     trner.train_epoch(outname)
 
