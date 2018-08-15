@@ -11,7 +11,7 @@ dynsys.py
 """
 import numpy as np
 from math import sin, cos, sqrt
-# import numba
+import numba
 
 
 class dynsys(object):
@@ -160,7 +160,7 @@ class QuadCopter(dynsys):
         return quadFG(x, self.m, self.g, self.kF, self.kM, self.L, self.In)
 
 
-#@numba.jit
+@numba.njit
 def quadDyn(x, u, m, g, kF, kM, L, In):
     """Dyn fun for quadcopter"""
     phi, theta, psi = x[3], x[4], x[5]
@@ -181,6 +181,7 @@ def quadDyn(x, u, m, g, kF, kM, L, In):
     return f
 
 
+@numba.njit
 def quatQuadDyn(x, u, m, g, kF, kM, L, In):
     """Dyn equation for quadcopter in quaternion"""
     qx, qy, qz = x[3], x[4], x[5]
@@ -198,6 +199,7 @@ def quatQuadDyn(x, u, m, g, kF, kM, L, In):
     return f
 
 
+@numba.njit
 def quatQuadJac(x, u, m, g, kF, kM, L, In):
     """Return Jx and Ju, in quaternion case"""
     qx, qy, qz = x[3], x[4], x[5]
@@ -235,13 +237,24 @@ def quatQuadJac(x, u, m, g, kF, kM, L, In):
     t28 = In[0] - In[1]
     t29 = 0.1e1 / In[2]
     t30 = t29 * kM
-    cg = np.array([[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,0,t10 * t5,t6 * (t5 * qy + p),t6 * (t5 * qz + q),0,0,0,t7,t8,-t9,0,0,0,0],[0,0,0,-t6 * (t11 * qx + p),-t7 * t11,t6 * (-t11 * qz + r),0,0,0,-t10,t9,t8,0,0,0,0],[0,0,0,-t6 * (-t12 * qx + q),-t6 * (-t12 * qy + r),t8 * t12,0,0,0,-t9,-t10,-t7,0,0,0,0],[0,0,0,t18 * (-t14 + qz) * t15,t18 * (-t2 * t4 + t3) * t15,t18 * (-t13 * qz + qx) * t15,0,0,0,0,0,0,t19,t19,t19,t19],[0,0,0,-t18 * (-t1 * t4 + t3) * t15,t18 * (t14 + qz) * t15,t18 * (t16 * t4 + qy) * t15,0,0,0,0,0,0,t20,t20,t20,t20],[0,0,0,t17 * qx * t15,t17 * qy * t15,0,0,0,0,0,0,0,t21,t21,t21,t21],[0,0,0,0,0,0,0,0,0,0,t23 * r * t22,t23 * q * t22,0,t24,0,-t24],[0,0,0,0,0,0,0,0,0,t26 * r * t25,0,t26 * p * t25,-t27,0,t27,0],[0,0,0,0,0,0,0,0,0,t29 * q * t28,t29 * p * t28,0,t30,-t30,t30,-t30]])
+    cg = np.zeros((12, 12 + 4))
+    for i in range(3):
+        cg[i, 6 + i] = 1
+    cg[3] = [0,0,0,t10 * t5,t6 * (t5 * qy + p),t6 * (t5 * qz + q),0,0,0,t7,t8,-t9,0,0,0,0]
+    cg[4] = [0,0,0,-t6 * (t11 * qx + p),-t7 * t11,t6 * (-t11 * qz + r),0,0,0,-t10,t9,t8,0,0,0,0]
+    cg[5] = [0,0,0,-t6 * (-t12 * qx + q),-t6 * (-t12 * qy + r),t8 * t12,0,0,0,-t9,-t10,-t7,0,0,0,0]
+    cg[6] = [0,0,0,t18 * (-t14 + qz) * t15,t18 * (-t2 * t4 + t3) * t15,t18 * (-t13 * qz + qx) * t15,0,0,0,0,0,0,t19,t19,t19,t19]
+    cg[7] = [0,0,0,-t18 * (-t1 * t4 + t3) * t15,t18 * (t14 + qz) * t15,t18 * (t16 * t4 + qy) * t15,0,0,0,0,0,0,t20,t20,t20,t20]
+    cf[8] = [0,0,0,t17 * qx * t15,t17 * qy * t15,0,0,0,0,0,0,0,t21,t21,t21,t21]
+    cg[9] = [0,0,0,0,0,0,0,0,0,0,t23 * r * t22,t23 * q * t22,0,t24,0,-t24]
+    cg[10] = [0,0,0,0,0,0,0,0,0,t26 * r * t25,0,t26 * p * t25,-t27,0,t27,0]
+    cg[11] = [0,0,0,0,0,0,0,0,0,t29 * q * t28,t29 * p * t28,0,t30,-t30,t30,-t30]
     Jx = cg[:, :12]
     Ju = cg[:, 12:]
     return Jx, Ju
 
 
-#@numba.jit
+@numba.njit
 def quadJac(x, u, m, g, kF, kM, L, In):
     """Return Jx and Ju, cts case since dt is unknown"""
     phi, theta, psi = x[3], x[4], x[5]
@@ -283,12 +296,23 @@ def quadJac(x, u, m, g, kF, kM, L, In):
     t31 = In[0] - In[1]
     t32 = 0.1e1 / In[2]
     t33 = t32 * kM
-    cg0 = np.array([[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,0,0,-t5,0,0,0,0,t2,0,t1,0,0,0,0],[0,0,0,-t3 * t10 + t4 * t10,t11 * t6,0,0,0,0,t8 * t6,1,-t12 * t6,0,0,0,0],[0,0,0,-t9 * t6 * t5,-t11,0,0,0,0,-t8,0,t12,0,0,0,0],[0,0,0,t13 * t19 * t7 * t14,t19 * (-t16 * t6 + t17) * t14,-t19 * t18 * t14,0,0,0,0,0,0,t21,t21,t21,t21],[0,0,0,-t17 * t19 * t7 * t14,t19 * (t15 * t6 + t13) * t14,t20 * t14,0,0,0,0,0,0,t22,t22,t22,t22],[0,0,0,-t19 * t6 * t2 * t14,-t23 * t1 * t14,0,0,0,0,0,0,0,t24,t24,t24,t24],[0,0,0,0,0,0,0,0,0,0,t26 * r * t25,t26 * q * t25,0,t27,0,-t27],[0,0,0,0,0,0,0,0,0,t29 * r * t28,0,t29 * p * t28,-t30,0,t30,0],[0,0,0,0,0,0,0,0,0,t32 * q * t31,t32 * p * t31,0,t33,-t33,t33,-t33]])
+    cg0 = np.zeros((12, 12 + 4))
+    for i in range(3):
+        cg0[i, 6 + i] = 1
+    cg0[3] = [0,0,0,0,-t5,0,0,0,0,t2,0,t1,0,0,0,0]
+    cg0[4] = [0,0,0,-t3 * t10 + t4 * t10,t11 * t6,0,0,0,0,t8 * t6,1,-t12 * t6,0,0,0,0]
+    cg0[5] = [0,0,0,-t9 * t6 * t5,-t11,0,0,0,0,-t8,0,t12,0,0,0,0]
+    cg0[6] = [0,0,0,t13 * t19 * t7 * t14,t19 * (-t16 * t6 + t17) * t14,-t19 * t18 * t14,0,0,0,0,0,0,t21,t21,t21,t21]
+    cg0[7] = [0,0,0,-t17 * t19 * t7 * t14,t19 * (t15 * t6 + t13) * t14,t20 * t14,0,0,0,0,0,0,t22,t22,t22,t22]
+    cg0[8] = [0,0,0,-t19 * t6 * t2 * t14,-t23 * t1 * t14,0,0,0,0,0,0,0,t24,t24,t24,t24]
+    cg0[9] = [0,0,0,0,0,0,0,0,0,0,t26 * r * t25,t26 * q * t25,0,t27,0,-t27]
+    cg0[10] = [0,0,0,0,0,0,0,0,0,t29 * r * t28,0,t29 * p * t28,-t30,0,t30,0]
+    cg0[11] = [0,0,0,0,0,0,0,0,0,t32 * q * t31,t32 * p * t31,0,t33,-t33,t33,-t33]
     Jx, Ju = cg0[:, :12], cg0[:, 12:]
     return Jx, Ju
 
 
-#@numba.jit
+@numba.njit
 def quadFG(x, m, g, kF, kM, L, In):
     phi, theta, psi = x[3], x[4], x[5]
     xd, yd, zd = x[6], x[7], x[8]
