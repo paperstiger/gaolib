@@ -245,7 +245,7 @@ class labelFactory(Factory):
             self.numLabel = len(self.lstLabel)
         else:
             self._xdata = tmp[names[0]]
-            self._label = tmp[names[1]]
+            self._label = tmp[names[1]].astype(np.long)
             self.numLabel = tmp[names[2]]
         self._ydata = self._label
         self._xdata, self._xmean, self._xstd = getStandardData(self._xdata, scalex, True)
