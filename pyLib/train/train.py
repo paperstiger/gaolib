@@ -396,12 +396,16 @@ def trainOne(config, data, scale_back=False, seed=None, loss=None, is_reg_task=T
         factory = keyFactory(data, namex, namey, scalex=scalex, scaley=scaley)
         factory.shuffle(seed)
     else:
-        nCluster = len(data)
-        nameLblPair = [('x%d' % i, i) for i in range(nCluster)]
-        if isinstance(data['x0'], dict):
-            factory = labelFactory(data, nameLblPair, xfun=lambda x: x[x0_name], scalex=scalex)
-        else:
-            factory = labelFactory(data, nameLblPair, xfun=None, scalex=scalex)
+        assert isinstance(data, dict)
+        if 'x0' in data:  # for classifier training, you can either use dict of x0, x1, etc or dict of x, label, n_label
+            nCluster = len(data)
+            nameLblPair = [('x%d' % i, i) for i in range(nCluster)]
+            if isinstance(data['x0'], dict):
+                factory = labelFactory(data, nameLblPair, xfun=lambda x: x[x0_name], scalex=scalex)
+            else:
+                factory = labelFactory(data, nameLblPair, xfun=None, scalex=scalex)
+        elif 'label' in data:
+            factory = labelFactory(data, None, None, scalex=scalex)
         factory.shuffle(seed)
     trainSet = subFactory(factory, 0.0, trainsize)
     testSet = subFactory(factory, trainsize, 1.0)

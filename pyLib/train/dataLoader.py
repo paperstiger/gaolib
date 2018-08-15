@@ -208,7 +208,7 @@ class labelFactory(Factory):
     We support two modes, one given file, we use a list of keys and functions operated on.
     Another mode is to simply add data label by label.
     """
-    def __init__(self, fnm, nameLblPair, xfun=None, scalex=True):
+    def __init__(self, fnm, nameLblPair, xfun=None, scalex=True, names=('x', 'label', 'n_label')):
         """Constructor.
 
         Parameters
@@ -217,6 +217,7 @@ class labelFactory(Factory):
         nameLblPair : we use this pair to get access to labelled data.
         xfun : callable, if we want to transform x data
         scalex : bool, if we want to standardize x
+        names: tuple, str, it is used if fnm directly contains those keys, enable if nameLblPair is None
 
         """
         if isinstance(fnm, str):
@@ -228,23 +229,28 @@ class labelFactory(Factory):
                 raise NotImplementedError
         elif isinstance(fnm, dict):
             tmp = fnm
-        self.lstData = []
-        self.lstLabel = []
-        for nm, lbl in nameLblPair:
-            if xfun is None:
-                xdata = tmp[nm]
-            else:
-                xdata = xfun(tmp[nm])
-            self.lstData.append(xdata)
-            self.lstLabel.append(lbl*np.ones(len(xdata), dtype=np.int))
-        # get whole data
-        self._xdata = np.concatenate(self.lstData, axis=0)
-        self._label = np.concatenate(self.lstLabel, axis=0)
+        if nameLblPair is not None:
+            self.lstData = []
+            self.lstLabel = []
+            for nm, lbl in nameLblPair:
+                if xfun is None:
+                    xdata = tmp[nm]
+                else:
+                    xdata = xfun(tmp[nm])
+                self.lstData.append(xdata)
+                self.lstLabel.append(lbl*np.ones(len(xdata), dtype=np.int))
+            # get whole data
+            self._xdata = np.concatenate(self.lstData, axis=0)
+            self._label = np.concatenate(self.lstLabel, axis=0)
+            self.numLabel = len(self.lstLabel)
+        else:
+            self._xdata = tmp[names[0]]
+            self._label = tmp[names[1]]
+            self.numLabel = tmp[names[2]]
         self._ydata = self._label
-        self.numLabel = len(self.lstLabel)
         self._xdata, self._xmean, self._xstd = getStandardData(self._xdata, scalex, True)
 
-        self.numData = len(self._xdata)
+        self.numData = self._xdata.shape[0]
         self._xdata = self._xdata.astype(np.float32)  # make it float
         self.xmean, self.xstd = self._xmean, self._xstd
         self._xname = 'x'
