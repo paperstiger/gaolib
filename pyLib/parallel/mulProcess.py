@@ -137,6 +137,8 @@ def getSharedNumpy(*args):
     :param args: ndarrays
     :return: the shared numpy wrapper for each numpy array
     """
+    if len(args) == 1:
+        return sharedNumpy(args[0])
     return [sharedNumpy(arg) for arg in args]
 
 
@@ -146,4 +148,6 @@ def getNumpy(*args):
     :param args: sharedNumpy object
     :return: the numpy array
     """
+    if len(args) == 1:
+        return args[0].numpy()
     return [arg.numpy() for arg in args]
