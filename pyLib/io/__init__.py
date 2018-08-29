@@ -6,6 +6,7 @@ from .stringio import getNumber, numRe, joinNumber
 from .codeio import load_source
 from .codeio import load_source as loadSource
 try:
-    import sharedmemory
+    from . import sharedmemory
+    from .sharedmemory import npload
 except:
     pass

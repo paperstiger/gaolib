@@ -16,6 +16,8 @@ import SharedArray as sa
 import re
 import warnings
 
+from .fileio import ddctParse
+
 
 class SharedMemory(object):
     """A class for managing shared memory.
@@ -27,11 +29,44 @@ class SharedMemory(object):
     """
     def __init__(self):
         self.keys = []  # stores all keys to arrays
+        # update on Aug 22, previous API is too redious and does not support query using only major name
+        # my update will be keep a dictionary that maintains name/dict
+        self.dct_keys = {}  # use a hierarchical way to manage names
         self.loadMemory()
 
     def loadMemory(self):
         """Call the sa api to get all names."""
         self.keys = [tmp.name for tmp in sa.list()]
+        if len(self.keys) > 0 and isinstance(self.keys[0], bytes):
+            self.keys = [key.decode('utf-8') for key in self.keys]
+        # also re_construct dct_keys
+        slash_finder = re.compile('^(\w+\\\\)')
+
+        def assign_key_to_dct(dct, key, header):
+            """For some keys, convert to corresponding things such as keys of dict.
+
+            :param dct: a dictionary to write data into
+            :param key: a key being processed
+            :param header:  str, the header, header\\\\ is removed
+            """
+            if header is not None:
+                use_key = key.replace(header, '')  # remove those slash
+            else:
+                use_key = key
+            grp = slash_finder.findall(use_key)
+            if len(grp) == 0:
+                dct[use_key] = None
+            else:
+                if header is None:
+                    header = grp[0].replace('\\', '')
+                else:
+                    header = header.replace('\\', '')
+                if not header in dct:
+                    dct[header] = {}
+                assign_key_to_dct(dct[header], use_key, grp[0])
+
+        for key in self.keys:
+            assign_key_to_dct(self.dct_keys, key, None)
 
     def getObject(self, name):
         """Retrieve an object by name.
@@ -44,12 +79,27 @@ class SharedMemory(object):
         return self._getObject(name, self.keys)
 
     def reportKeys(self):
+        """Hierarchically report keys"""
+        # print(self.keys)
+        def get_key(dct):
+            return [(key, get_key(dct[key])) if isinstance(dct[key], dict) else key for key in dct.keys()]
         print(self.keys)
+        print(self.dct_keys.keys())
+        print(get_key(self.dct_keys))
 
-    def addObject(self, obj, name=None, noalter=False, replace=False):
-        """Add an object this obj can be either ndarray or dict of ndarray."""
+    def addObject(self, obj, name=None, noalter=False, replace=False, key_dst=None, shortname=None):
+        """Add an object this obj can be either ndarray or dict of ndarray.
+
+        obj: ndarray/dict, the object to store
+        name: str, the name to store, if it is in type of xx\\yy, I only keep yy
+        noalter: bool, if a key exists, we do nothing
+        replace: bool, if true and a key exists, we erase previous one and rewrite
+        key_dst: list/None, the destination to write a key to
+        shortname: str, a shortname, for the new API
+        """
+        assert shortname is not None
+        assert name is not None
         if isinstance(obj, np.ndarray):
-            assert name is not None
             if name in self.keys:
                 if noalter:
                     return
@@ -61,12 +111,21 @@ class SharedMemory(object):
                         self.clear(name)
             register_key = self._getUnregisteredKey(name)
             self.keys.append(register_key)
+            if key_dst is None:
+                self.dct_keys[shortname] = None  # for an ndarray, the dict maps to None
+            else:
+                key_dst[shortname] = None
             tmp = sa.create(register_key, obj.shape, dtype=obj.dtype)
             tmp[:] = obj
         elif isinstance(obj, dict):
+            to_append = {}
+            if key_dst is None:  # we are at root
+                self.dct_keys[shortname] = to_append  # for a dict, we add a list  # TODO: add dict of dict type data
+            else:
+                key_dst[shortname] = to_append
             for key in obj.keys():
                 register_key = self._getConcatKey(key, folder=name)
-                self.addObject(obj[key], register_key, noalter, replace)
+                self.addObject(obj[key], register_key, noalter, replace, to_append, key)  # Here we use key as shortname
 
     def _getObject(self, name, namespace):
         """Get object by name."""
@@ -149,7 +208,7 @@ def add(obj, name=None, noalter=False, replace=True):
     replace : bool, only when noalter is False, if set to True, it replace a data instead of creating a one with non-conflict name
 
     """
-    __sm__.addObject(obj, name, noalter, replace)
+    __sm__.addObject(obj, name, noalter, replace, None, name)
 
 
 def get(name):
@@ -158,7 +217,7 @@ def get(name):
 
 def has(name):
     """Check if a name is in keys"""
-    return name in __sm__.keys
+    return name in __sm__.keys or name in __sm__.dct_keys.keys()
 
 
 def clear():
@@ -179,3 +238,17 @@ def list():
 def clearSA():
     for key in sa.list():
         sa.delete(key.name)
+
+
+def npload(fnm, sm_name, re_load=False):
+    """Load a numpy array / dct of numpy array and keep it in memory, with option of rewriting
+
+    :param fnm: str, file name to the array
+    :param sm_name: the name used for saving this array
+    """
+    if not has(sm_name) or re_load:
+        data = ddctParse(fnm)
+        add(data, sm_name)  # since we load, we always replace
+        return data
+    else:
+        return get(sm_name)

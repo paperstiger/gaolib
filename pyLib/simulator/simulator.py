@@ -79,4 +79,5 @@ class Simulator(TrajPropagate):
                 state = self.perturber(state)
         vX, vU = np.array(vX), np.array(vU)
         vt = self.t0 + self.dt * np.arange(stepi + 1)
-        return {'status': status, 'statef': state, 'vt': vt, 'vX': vX, 'vU': vU}
+        return {'status': status, 'statef': state.astype(np.float32), 'vt': vt.astype(np.float32),
+                'vX': vX.astype(np.float32), 'vU': vU.astype(np.float32)}

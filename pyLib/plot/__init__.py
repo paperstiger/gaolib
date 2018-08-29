@@ -38,6 +38,27 @@ def setTickSize(ax, size=16):
         ax.tick_params(axis='z', labelsize=size)
 
 
+def setGlobalFontSize(size=14, mode=None):
+    """Set font size globally.
+
+    If mode is None, use size.
+    If mode == 'column', use size suitable for a column, 14
+    If mode == 'half', use size suitable for half a column, 20
+    """
+    if mode is None:
+        SMALL_SIZE = size
+    elif mode == 'half':
+        SMALL_SIZE = 20
+    mpl.rc('font', size=SMALL_SIZE)
+    mpl.rc('axes', titlesize=SMALL_SIZE)
+    mpl.rc('axes', labelsize=SMALL_SIZE)
+    mpl.rc('xtick', labelsize=SMALL_SIZE)
+    mpl.rc('ytick', labelsize=SMALL_SIZE)
+    mpl.rc('legend', fontsize=SMALL_SIZE)
+    mpl.rc('figure', titlesize=SMALL_SIZE)
+    mpl.rcParams['text.usetex'] = True
+
+
 def alignRange(*args):
     """Given many axes, align the range"""
     xlims = np.array([arg.get_xlim() for arg in args])
