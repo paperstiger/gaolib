@@ -62,6 +62,57 @@ class GaoNet(nn.Module):
         else:
             return y
 
+    def extendXYScale(self, xScale=None, yScale=None):
+        """Extend scale we mean we extend this model such that if input removes this scaler, result does not change
+        We do it by modifying weights. Although I do think linear layer should also work.
+        """
+        state_dct = self.state_dict()
+        nlyr = len(self.layers)  # so I just use 0 and this number - 1
+        if xScale is not None:
+            w0 = state_dct['main.0.weight']
+            b0 = state_dct['main.0.bias']
+            xmean, xstd = xScale
+            b0 -= torch.mv(w0, torch.from_numpy(np.squeeze(xmean/xstd, axis=0)).float())
+            w0 /= torch.from_numpy(xstd).float()
+        if yScale is not None:
+            wf = state_dct['main.%d.weight' % (nlyr - 1)]
+            bf = state_dct['main.%d.bias' % (nlyr - 1)]
+            ymean, ystd = yScale
+            wf *= torch.from_numpy(ystd.T).float()
+            bf *= torch.from_numpy(np.squeeze(ystd, axis=0)).float()
+            bf += torch.from_numpy(np.squeeze(ymean, axis=0)).float()
+
+    def reduceXYScale(self, xScale=None, yScale=None):
+        """Change weights such that it is invariant if we add a scaler ahead and after this network."""
+        state_dct = self.state_dict()
+        nlyr = len(self.layers)
+        if xScale is not None:
+            w0 = state_dct['main.0.weight']
+            b0 = state_dct['main.0.bias']
+            xmean, xstd = xScale
+            w0 *= torch.from_numpy(xstd.T).float()
+            b0 *= torch.from_numpy(np.squeeze(xstd, axis=0)).float()
+            b0 += torch.from_numpy(np.squeeze(ymean, axis=0)).float()
+        if yScale is not None:
+            wf = state_dct['main.%d.weight' % (nlyr - 1)]
+            bf = state_dct['main.%d.bias' % (nlyr - 1)]
+            ymean, ystd = yScale
+            bf -= torch.mv(wf, torch.from_numpy(np.squeeze(xmean/xstd, axis=0)).float())
+            wf /= torch.from_numpy(ystd).float()
+
+    def printWeights(self, lyr=None):
+        """Print weights of a layer, or all"""
+        if lyr is None:
+            val = []
+            for tmp in self.parameters():
+                print(tmp.data)
+                val.append(tmp.data.cpu().numpy())
+        else:
+            selfparam = list(self.parameters())
+            print('layer %d' % lyr, selfparam[lyr].data)
+            val = selfparam[lyr].data.cpu().numpy()
+        return val
+
     def __str__(self):
         nm = '_'.join(map(str, self.lyrs))
         return nm

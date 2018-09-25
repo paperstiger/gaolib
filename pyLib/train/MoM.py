@@ -217,9 +217,13 @@ def momLoader(model, withclus=False, argmax=False):
     """Given a model name, usually a pickle file, load the model, create a function.
     It is loading mom, so it returns both predY and y, the first is used to recover classification
     """
-    with open(model, 'rb') as f:
-        tmp = pickle.load(f)
-    mdl = tmp['model']
+    try:
+        with open(model, 'rb') as f:
+            tmp = pickle.load(f)
+        mdl = tmp['model']
+    except:
+        tmp = torch.load(model)
+        mdl = tmp['model']
     mdl.cuda()
     if argmax:
         mdl.argmax = True

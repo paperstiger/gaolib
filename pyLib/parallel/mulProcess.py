@@ -121,6 +121,85 @@ class mulProcess(object):
         self.fun(self.listi[0], *self.args, **self.kwargs)
 
 
+class ProcessWrap(object):
+    """Define a process."""
+    def __init__(self, f, *args, **kwargs):
+        """Generally this function takes f, execute with a queue, and additional args and kwargs"""
+        self.fun = f
+        self.args = args
+        self.kwargs = kwargs
+
+    def __call__(self, q, i, dct):
+        """Call this function."""
+        dct[i] = self.fun(q, *self.args, **self.kwargs)
+
+
+class PoolProcess(object):
+    """A pool-style multiprocessing library."""
+    def __init__(self, nProcess, fun, iterable, with_id, *args, **kwargs):
+        """Initialize the Pool by specifying process number, function to evaluate, iterable to use, and additional arguments."""
+        self.fun = fun
+        if nProcess is None:
+            nProcess = mp.cpu_count()
+        self.nProcess = nProcess
+        # create process wrapper
+        self.proc = []
+        for i in range(nProcess):
+            if with_id:
+                use_args = [i]
+                use_args.extend(args)
+            else:
+                use_args = args
+            self.proc.append(ProcessWrap(fun, *use_args, **kwargs))
+        # create shared objects
+        manager = Manager()
+        self.return_dict = manager.dict()
+        self.queue = manager.Queue(2 * nProcess)
+        self.iterable = iterable
+        self.with_id = with_id
+
+    def run(self, **kwargs):
+        """Run the simulation in multiple processes.
+
+        :param kwargs: key-word arguments, user can specify wait time by wait=0.1
+        :return: a list of return values from each process
+        """
+        allproc = [Process(target=proc, args=(self.queue, i, self.return_dict)) for i, proc in enumerate(self.proc)]
+        for proc in allproc:
+            proc.start()
+            if 'wait' in kwargs:
+                time.sleep(kwargs['wait'])
+        # deal with queue here
+        for stuff in self.iterable:
+            self.queue.put(stuff)  # blocks until q below its max size
+        for _ in range(self.nProcess):  # tell workers we're done
+            self.queue.put(None)
+        for proc in allproc:
+            proc.join()
+        results = []
+        for i in range(self.nProcess):
+            try:
+                toappend = self.return_dict[i]
+                results.append(toappend)
+            except:
+                print('Error occurs at %d' % i)
+        return results
+
+    def debug(self):
+        """Run the simulation in debug mode.
+
+        In debug mode, we call the function directly in current process so pdb can add breakpoints.
+        """
+        for i, stuff in enumerate(self.iterable):
+            self.queue.put(stuff)
+            if i >= self.nProcess - 1:
+                break
+        for i in range(self.nProcess):
+            self.queue.put(None)
+        if self.with_id:
+            self.proc[0].__call__(self.queue, 0, self.return_dict)
+
+
 def getTaskSplit(num, nProcess):
     """Return a split of task.
 

@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import operator
 import cPickle as pickle
+import glob
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -57,6 +58,7 @@ class trainer(object):
         self.progressFactor = kwargs.get('progressFactor', 0.95)
         self.unary = kwargs.get('unary', 0)  # by default not unary
         self.txtname = kwargs.get('txtname', 'models/record.txt')
+        self.overWriteModel = kwargs.get('overwrite', True)
         # others such as cuda
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr)
 
@@ -66,6 +68,21 @@ class trainer(object):
 
     def getTrainError(self):
         return self.getTestLoss(self.trainLder)
+
+    def modifySaveName(self, saveName, overwrite=True):
+        """Optionally change saveName to avoid overwriting of models"""
+        if saveName is None:
+            return saveName
+        abspath = os.path.abspath(saveName)
+        dir_name = os.path.dirname(abspath)
+        if not os.path.exists(dir_name):
+            os.mkdir(dir_name)
+        if not overwrite:
+            files = glob.glob('%s/*' % dir_name)
+            left_files = filter(lambda x: x.startswith(abspath), files)
+            if len(left_files) > 0:
+                saveName += '.%d' % len(left_files)
+        return saveName
 
     def train_epoch(self, saveName=None):
         """Train the model epoch by epoch so it is slightly different from train.
@@ -80,6 +97,7 @@ class trainer(object):
         trainerror = np.zeros(maxRecordNum)
         testerror = []  # a list since it might contain several things
         trainEnd = ''
+        saveName = self.modifySaveName(saveName, self.overWriteModel)
 
         # record at entry
         testerror0 = self.getTestLoss()
@@ -149,6 +167,7 @@ class trainer(object):
         testerror = []  # a list since it might contain several things
         curIter = 0
         trainEnd = ''
+        saveName = self.modifySaveName(saveName, self.overWriteModel)
         if self.enableTimer:
             curtime = time.time()
             nextCheckTime = curtime + self.timeCheckFreq
@@ -341,11 +360,14 @@ def genFromDefaultConfig(**kwargs):
                 "namex": "x",
                 "namey": "y",
                 "outdir": "models",
+                "overwrite": True,
                 "outname": "y_of_x.pt",
                 'dataname': "data/data.npz"
                 }
     if kwargs is not None:
         defaultdict.update(kwargs)
+    if '.' not in defaultdict['outname']:
+        defaultdict['outname'] = defaultdict['outname'] + '.pt'
     return defaultdict
 
 
@@ -390,6 +412,7 @@ def trainOne(config, data, scale_back=False, seed=None, loss=None, is_reg_task=T
     recordfreq = config['recordfreq']
     errorbackstep = config['errorbackstep']
     epochbackstep = config['epochbackstep']
+    over_write = config['overwrite']
     if is_reg_task:
         namex = config.get('namex', 'x')
         namey = config.get('namey', 'y')
@@ -463,6 +486,7 @@ def trainOne(config, data, scale_back=False, seed=None, loss=None, is_reg_task=T
             trner = trainer(net, trainLder, testLder, celoss, testloss=testClassifyLoss, gtfun=greater,
                             epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, epochbackstep=epochbackstep)
 
+    trner.overWriteModel = over_write
     trner.train_epoch(outname)
 
 
