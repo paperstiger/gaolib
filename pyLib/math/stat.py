@@ -77,7 +77,7 @@ def getPCA(x, n_components=3, scale=True):
 def _getIndAlongAxis(x, axis, ind):
     slc = [slice(None)] * x.ndim
     slc[axis] = ind
-    return x[slc]
+    return x[tuple(slc)]
 
 
 def getMeanStd(data, cols=None, axis=0):
@@ -119,7 +119,7 @@ def getMeanStd(data, cols=None, axis=0):
     return mean, std
 
 
-def getStandardData(data, cols=None, return_meanstd=False, axis=0):
+def getStandardData(data, cols=True, return_meanstd=False, axis=0):
     """Standardize the dataset, return that value.
 
     See getMeanStd for detailed documentation.

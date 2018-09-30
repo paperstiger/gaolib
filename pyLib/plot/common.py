@@ -120,7 +120,7 @@ def getIndAlongAxis(x, axis, ind=0):
         return x
     slc = [slice(None)] * len(x.shape)
     slc[axis] = ind
-    return x[slc]
+    return x[tuple(slc)]
 
 
 def setFontSize(SMALL_SIZE=14):

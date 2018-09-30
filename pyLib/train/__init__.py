@@ -3,14 +3,14 @@ import scipy.linalg
 from .train import trainer, getFileName, genFromDefaultConfig, trainOne, trainAutoEncoder, writeHeader, evalOne
 from .weighttrain import weightTrainer
 from .dataLoader import dataLoader, keyFactory, vecKeyFactory, labelFactory, subFactory, Factory, unaryKeyFactory
-from .torchUtil import GaoNet, modelLoader, modelLoaderV2, plotError, encoderLoader, svcLoader, recordStep0, model2cpu
+from .torchUtil import GaoNet, GaoNetBN, modelLoader, modelLoaderV2, plotError, encoderLoader, svcLoader, recordStep0, model2cpu
 from .torchUtil import autoEncoder as AutoEncoder
 from .MoM import MoMNet, momLoader
 from ..math.stat import getStandardData
 
 # use pretty names
 from .train import trainer as Trainer
-from .train import genFromDefaultConfig as genTrainConfig
+from .train import genFromDefaultConfig as genTrainConfig, getModelPath
 from .dataLoader import dataLoader as DataLoader
 from .dataLoader import keyFactory as KeyFactory
 from .dataLoader import vecKeyFactory as VecKeyFactory

@@ -48,7 +48,9 @@ def linkcode_resolve(domain, info):
     if not info['module']:
         return None
     filename = info['module'].replace('.', '/')
-    return "file://../../%s.py" % filename
+    string = "file://../../%s.py" % filename
+    print(string)
+    return string
 
 
 # Add any Sphinx extension module names here, as strings. They can be

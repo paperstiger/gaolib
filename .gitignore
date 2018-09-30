@@ -1,3 +1,6 @@
 *~
 *.pyc
 build/
+docs/source/*
+docs/*
+!docs/source/conf.py

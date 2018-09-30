@@ -15,7 +15,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import Dataset
-from torchUtil import GaoNet, plotError, recordStep0
+from torchUtil import GaoNet, GaoNetBN, plotError, recordStep0
 from dataLoader import dataLoader, keyFactory, labelFactory, subFactory, unaryKeyFactory
 from torchUtil import modelLoader
 # from tensorboardX import SummaryWriter
@@ -106,6 +106,7 @@ class trainer(object):
         # begin training
         for epoch in range(self.numEpoch):
             train_loss_sum = 0
+            self.net.train()
             for idx, batch_data in enumerate(self.trainLder):
                 self.optimizer.zero_grad()
                 if self.unary == 0:
@@ -292,6 +293,7 @@ class trainer(object):
                     pickle.dump(model, f)
 
     def getTestLoss(self, lder=None):
+        self.net.eval()
         if lder is None:
             dL = self.testLder
         else:
@@ -349,6 +351,7 @@ def genFromDefaultConfig(**kwargs):
                             [1, 1, 1]
                             ],
                 "neton": [1],
+                "bn": True,  # enable batch normalization
                 "lr": 1e-3,
                 "epoch": 1500,
                 "batch_size": 64,
@@ -369,6 +372,10 @@ def genFromDefaultConfig(**kwargs):
     if '.' not in defaultdict['outname']:
         defaultdict['outname'] = defaultdict['outname'] + '.pt'
     return defaultdict
+
+
+def getModelPath(config):
+    return os.path.join(config['outdir'], config['outname'])
 
 
 def writeHeader(msg, fnm=None):
@@ -439,7 +446,10 @@ def trainOne(config, data, scale_back=False, seed=None, loss=None, is_reg_task=T
     testLder = dataLoader(testSet, batch_size=test_batch_size, shuffle=False)
     if net is None:
         network = _getNetwork(config)
-        net = GaoNet(network).cuda()
+        if config['bn']:
+            net = GaoNetBN(network).cuda()
+        else:
+            net = GaoNet(network).cuda()
     else:
         net.cuda()
 
@@ -519,7 +529,10 @@ def trainAutoEncoder(net, data, config, seed=1994, scale=False):
     assert isinstance(net, nn.Module)
     if net is None:
         network = _getNetwork(config)
-        net = GaoNet(network)
+        if config['bn']:
+            net = GaoNetBN(network)
+        else:
+            net = GaoNet(network)
     net.cuda()
     trainsize = config['trainsize']
     epoch = config['epoch']
@@ -538,10 +551,6 @@ def trainAutoEncoder(net, data, config, seed=1994, scale=False):
     test_batch_size = -1
     trainLder = dataLoader(trainSet, batch_size=batch_size, shuffle=False)
     testLder = dataLoader(testSet, batch_size=test_batch_size, shuffle=False)
-    if net is None:
-        net = GaoNet(network).cuda()
-    else:
-        net.cuda()
 
     l1loss = torch.nn.SmoothL1Loss()
 

@@ -34,6 +34,8 @@ def ddctParse(fnm, thekey=None):
         else:
             return data
     tmp = np.load(fnm)
+    if isinstance(tmp, np.ndarray):
+        return tmp
     keys = tmp.keys()
     if thekey is None:  # load all data
         try:

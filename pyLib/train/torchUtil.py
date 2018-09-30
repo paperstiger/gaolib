@@ -17,7 +17,8 @@ from ..math.stat import destdify, stdify, getStandardData
 
 
 class GaoNet(nn.Module):
-    def __init__(self, lyrs, dropout=None):
+    def __init__(self, lyrs, dropout=None, bn=False):
+        """Constructor for GaoNet with backward compatibility. By default dropout or bn is disabled."""
         super(GaoNet, self).__init__()
         assert len(lyrs) >= 3
         self.lyrs = lyrs
@@ -30,26 +31,31 @@ class GaoNet(nn.Module):
             self.layers.append(nn.LeakyReLU(0.2))
             if i > 0 and dropout is not None:
                 self.layers.append(nn.Dropout(p=dropout))
+            if bn:
+                self.layers.append(nn.BatchNorm1d(lyrs[i + 1]))
         # final layer is linear output
         self.layers.append(nn.Linear(lasthidden, outlayer))
         # use the OrderedDict trick to assemble the system
         self.main = nn.Sequential(OrderedDict([(str(i), lyr) for i, lyr in enumerate(self.layers)]))
 
     def forward(self, x):
-        out = x
-        for i, lyr in enumerate(self.layers):
-            out = lyr(out)
-        return out
+        return self.main(x)
+        # out = x
+        # for i, lyr in enumerate(self.layers):
+        #     out = lyr(out)
+        # return out
 
     def getWeights(self):
         vw, vb = [], []
         for m in self.modules():
-            if isinstance(m, nn.Linear):
+            if isinstance(m, (nn.Linear, nn.BatchNorm1d, nn.BatchNorm2d)):
                 vw.append(m.weight.data.numpy())
                 vb.append(m.bias.data.numpy())
         return {'w': vw, 'b': vb}
 
-    def eval(self, x):
+    def eval(self, x=None):
+        if x is None:
+            return nn.Module.eval(self)
         assert isinstance(x, np.ndarray)
         ndim = x.ndim
         if ndim == 1:
@@ -118,9 +124,40 @@ class GaoNet(nn.Module):
         return nm
 
 
+class GaoNetBN(GaoNet):
+    """A GaoNet class with batch normalization support."""
+    def __init__(self, lyrs):
+        nn.Module.__init__(self)
+        assert len(lyrs) >= 3
+        self.lyrs = lyrs
+        self.layers = []
+        self.bnlayers = []
+        nHidden = len(lyrs) - 2
+        lasthidden = lyrs[-2]
+        outlayer = lyrs[-1]
+        for i in range(nHidden):
+            self.layers.append(nn.Linear(lyrs[i], lyrs[i+1]))
+            self.bnlayers.append(nn.BatchNorm1d(lyrs[i + 1]))
+        # final layer is linear output
+        self.layers.append(nn.Linear(lasthidden, outlayer))
+        self.layers.extend(self.bnlayers)
+        # use the OrderedDict trick to assemble the system
+        self.main = nn.Sequential(OrderedDict([(str(i), lyr) for i, lyr in enumerate(self.layers)]))
+        self.nHidden = nHidden
+
+    def forward(self, x):
+        """Forward pass for the model"""
+        out = x
+        for i in range(self.nHidden):
+            out = F.leaky_relu(self.bnlayers[i](self.layers[i](out)), 0.2)
+        # final linear layer
+        out = self.layers[self.nHidden](out)
+        return out
+
+
 class autoEncoder(nn.Module):
     """An auto encoder contains both encoder and decoder"""
-    def __init__(self, enlyr, delyr):
+    def __init__(self, enlyr, delyr, bn=False):
         super(autoEncoder, self).__init__()
         assert enlyr[0] == delyr[-1] and enlyr[-1] == delyr[0]
         assert len(enlyr) > 1 and len(delyr) > 1  # cannot be too simple
@@ -132,14 +169,14 @@ class autoEncoder(nn.Module):
         self.delayers = []
         for i in range(nenlyr - 1):
             self.enlayers.append(nn.Linear(enlyr[i], enlyr[i + 1]))
-            """
             if i < nenlyr - 1:
                 self.enlayers.append(nn.LeakyReLU(0.2))
-            """
+                self.enlayers.append(nn.BatchNorm1d(enlyr[i + 1]))
         for i in range(ndelyr - 1):
             self.delayers.append(nn.Linear(delyr[i], delyr[i + 1]))
             if i < ndelyr - 1:
                 self.delayers.append(nn.LeakyReLU(0.2))
+                self.delayers.append(nn.BatchNorm1d(delyr[i + 1]))
         self.encoder = nn.Sequential(OrderedDict([(str(i), lyr) for i, lyr in enumerate(self.enlayers)]))
         self.decoder = nn.Sequential(OrderedDict([(str(i), lyr) for i, lyr in enumerate(self.delayers)]))
 
@@ -149,8 +186,8 @@ class autoEncoder(nn.Module):
         return x
 
     def __str__(self):
-        nm1 = '_'.join(map(str, self.enlayers))
-        nm2 = '_'.join(map(str, self.delayers))
+        nm1 = '_'.join(map(str, self.enlyr))
+        nm2 = '_'.join(map(str, self.delyr))
         return '%s-%s' % (nm1, nm2)
 
 
@@ -257,6 +294,8 @@ def modelLoader(model, name='model', reScale=True, cuda=False, ptmode=False, sta
         mdl.cuda()
     else:
         mdl.cpu()
+    # enable evaluation mode
+    mdl.eval()
 
     # create the function
     def fun(x, batch_size=-1):
@@ -363,7 +402,7 @@ def encoderLoader(model, name='model', reScale=True, cuda=False, return_encoder=
         # convert and feed
         feedx = Variable(torch.from_numpy(x)).float()
         if cuda:
-            feedx.cuda()
+            feedx = feedx.cuda()
         predy = mdl.encoder(feedx).cpu().data.numpy()
         if xdim == 1:
             predy = np.squeeze(predy, axis=0)
@@ -376,7 +415,7 @@ def encoderLoader(model, name='model', reScale=True, cuda=False, return_encoder=
         # convert and feed
         feedx = Variable(torch.from_numpy(x)).float()
         if cuda:
-            feedx.cuda()
+            feedx = feedx.cuda()
         predy = mdl.decoder(feedx).cpu().data.numpy()
         if xdim == 1:
             predy = np.squeeze(predy, axis=0)
