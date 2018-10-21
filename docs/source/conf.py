@@ -41,6 +41,8 @@ release = u''
 
 PRJPATH = os.path.abspath('../..')
 
+SOURCE_PATH = 'file:///Users/GAO/pyLib/'
+
 
 def linkcode_resolve(domain, info):
     if domain != 'py':
@@ -48,8 +50,8 @@ def linkcode_resolve(domain, info):
     if not info['module']:
         return None
     filename = info['module'].replace('.', '/')
-    string = "file://../../%s.py" % filename
-    print(string)
+    # string = "file://../../%s.py" % filename
+    string = SOURCE_PATH + filename + '.py'
     return string
 
 

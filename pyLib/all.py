@@ -11,7 +11,6 @@ all.py
 
 Contains all the functions defined here.
 """
-import torch
 from .controller import *
 from .dynsys import *
 from .io import *

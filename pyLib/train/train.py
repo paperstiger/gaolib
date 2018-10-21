@@ -59,12 +59,16 @@ class trainer(object):
         self.unary = kwargs.get('unary', 0)  # by default not unary
         self.txtname = kwargs.get('txtname', 'models/record.txt')
         self.overWriteModel = kwargs.get('overwrite', True)
+        self.epochSaveFreq = 100
         # others such as cuda
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr)
 
     def getTestError(self):
         """Evaluate current model using test set, report average error"""
         return self.getTestLoss()
+
+    def setEpochSaveFreq(self, freq):
+        self.epochSaveFreq = freq
 
     def getTrainError(self):
         return self.getTestLoss(self.trainLder)
@@ -108,13 +112,17 @@ class trainer(object):
             train_loss_sum = 0
             self.net.train()
             for idx, batch_data in enumerate(self.trainLder):
-                self.optimizer.zero_grad()
                 if self.unary == 0:
+                    if batch_data[self.xname].shape[0] == 1:
+                        continue
                     feedy = Variable(batch_data[self.yname], requires_grad=False).cuda()
                     feedx = Variable(batch_data[self.xname], requires_grad=False).cuda()
                 else:
+                    if batch_data.shape[0] == 1:
+                        continue
                     feedy = Variable(batch_data, requires_grad=False).float().cuda()
                     feedx = feedy
+                self.optimizer.zero_grad()
                 predy = self.net(feedx)
                 trainloss = self.loss(predy, feedy)
                 trainloss.backward()
@@ -134,6 +142,9 @@ class trainer(object):
             elif epoch > checkTestError[0] + epochBackStep:
                 trainEnd = 'no improve'
                 break
+            # optionally save model
+            if epoch % self.epochSaveFreq == self.epochSaveFreq - 1:
+                self.save(saveName, False)
 
         # check if we truly exit in case numEpoch is not high enough
         if trainEnd == 'no improve':
@@ -147,10 +158,17 @@ class trainer(object):
             f.write('%s\n' % datetime.datetime.now())
             recordStep0(testerror0, saveName, self.txtname)
             plotError(trainerror, testerror, 1, None, False, False, txtname=self.txtname, mdlname=saveName)
+        self.save(saveName, True, trainerror, testerror)
+
+    def save(self, saveName, final=False, trainerror=None, testerror=None):
         # we save model and training errors
         if saveName is not None:
-            self.net.cpu()
-            model = {'model': self.net, 'trainerror': trainerror, 'testerror': testerror}
+            if final:
+                self.net.cpu()
+            if trainerror is not None and testerror is not None:
+                model = {'model': self.net, 'trainerror': trainerror, 'testerror': testerror}
+            else:
+                model = {'model': self.net}
             if hasattr(self.trainLder, 'xmean'):
                 model['xScale'] = [self.trainLder.xmean, self.trainLder.xstd]
             if hasattr(self.trainLder, 'ymean'):
@@ -360,6 +378,7 @@ def genFromDefaultConfig(**kwargs):
                 "epochbackstep": 8,
                 "trainsize": 0.8,
                 "recordfreq": 10,
+                "savefreq": 10,
                 "namex": "x",
                 "namey": "y",
                 "outdir": "models",
@@ -497,6 +516,7 @@ def trainOne(config, data, scale_back=False, seed=None, loss=None, is_reg_task=T
                             epoch=epoch, lr=lr, recordfreq=recordfreq, errorbackstep=errorbackstep, epochbackstep=epochbackstep)
 
     trner.overWriteModel = over_write
+    trner.setEpochSaveFreq(config['savefreq'])
     trner.train_epoch(outname)
 
 
@@ -548,7 +568,7 @@ def trainAutoEncoder(net, data, config, seed=1994, scale=False):
     # read batch
     batch_size = config['batch_size']
     outname = os.path.join(config['outdir'], config['outname'])
-    test_batch_size = -1
+    test_batch_size = config['test_batch_size']
     trainLder = dataLoader(trainSet, batch_size=batch_size, shuffle=False)
     testLder = dataLoader(testSet, batch_size=test_batch_size, shuffle=False)
 
