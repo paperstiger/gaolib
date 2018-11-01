@@ -25,7 +25,9 @@ class Mute(list):
             devnull = open(os.devnull, 'w')
             self.old_std = os.dup(sys.stdout.fileno())
             os.dup2(devnull.fileno(), 1)
+            self.devnull = devnull
 
     def __exit__(self, *args):
         if self.mute:
             os.dup2(self.old_std, 1)
+            self.devnull.close()
