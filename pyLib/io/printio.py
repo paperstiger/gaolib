@@ -13,7 +13,6 @@ Control print
 """
 import sys
 import os
-from cStringIO import StringIO
 
 
 class Mute(list):
