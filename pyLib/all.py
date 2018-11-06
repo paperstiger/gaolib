@@ -11,12 +11,15 @@ all.py
 
 Contains all the functions defined here.
 """
-from .controller import *
-from .dynsys import *
+try:
+    from .controller import *
+    from .dynsys import *
+    from .simulator import *
+except:
+    pass
 from .io import *
 from .math import *
 from .parallel import *
 from .plot import *
-from .simulator import *
 from .sympy import *
 from .train import *
