@@ -11,6 +11,7 @@ argument.py
 
 Easy arguments
 """
+import os
 import argparse
 import re
 import warnings
@@ -22,7 +23,7 @@ _has_number_pattern_ = re.compile(r'\d+')  # this detects if there is number
 _letter_int_pattern_ = re.compile(r'^[a-zA-Z]+([-+]?[\d]+)$')  # this detects if it is word+int pattern
 
 
-def getOnOffArgs(*args):
+def getOnOffArgs(*args, **kwargs):
     """Get on-off arguments.
 
     This is a very useful function for defining problem arguments
@@ -33,6 +34,9 @@ def getOnOffArgs(*args):
     str+space+str: defining string arguments, the first part is argument name, second is default value
     str+int: defining integer arguments
     str+float: defining float arguments
+
+    kwargs can specify file which means a file where each line containing some default turned on options.
+    If not specified, it will find .getargs file under current folder.
 
     A helper argument can always be added if arg is a tuple of two
     """
@@ -66,4 +70,18 @@ def getOnOffArgs(*args):
             else:  # we assume a float
                 floatnum = float(getNumber(arg)[0])
                 parser.add_argument('-%s' % word, type=float, default=floatnum, help=helper)
-    return parser.parse_args()
+    args = parser.parse_args()
+    # read a file name '.getargs' which could potentially store
+    the_file = kwargs.get('file', None)
+    if the_file is None and os.path.exists('.getargs'):
+        the_file = '.getargs'
+    if the_file is not None:
+        if not os.path.exists(the_file):
+            print('Config file %s does not exist.' % the_file)
+            return args
+        with open(the_file) as f:
+            for line in f:
+                option = line.rstrip()
+                if hasattr(args, option):
+                    setattr(args, option, True)
+    return args

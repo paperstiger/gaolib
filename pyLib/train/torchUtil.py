@@ -191,6 +191,44 @@ class autoEncoder(nn.Module):
         return '%s-%s' % (nm1, nm2)
 
 
+def subNetFromNet(net, fraction, depth=None):
+    """Given a feed-forward neural network.
+
+    Use the fact that linear scaling of hidden layers introduce both quadratic and linear terms.
+
+    :param net: list, int, specifies the mlp architecture
+    :param fraction: float, fraction of data of the subset
+    :param depth: int/None, the depth of network (including input and output), if None, equals len(net).
+    if the depth != len(net), we have to assume hidden layers are of equal width.
+    :return: list, int, the output network architecture
+    """
+    assert len(net) > 2
+    assert 0 <= fraction and fraction <= 1
+    d_in = net[0]
+    d_out = net[-1]
+    # calculate linear term of equation.
+    num_lin = d_in * net[1] + d_out * net[-2]
+    num_quad = 0 if len(net) == 3 else sum([a * b for a, b in zip(net[1:-2], net[2:-1])])
+    if depth is None or depth == len(net) or depth <= 0:  # in this case, we solve fraction of hidden layers
+        if num_quad == 0:
+            k = fraction
+        else:
+            sol = np.roots([num_quad, num_lin, -fraction * (num_quad + num_lin)])
+            k = float(max(sol[0], sol[1]))
+        # generate output
+        outnet = [d_in] + [int(k * num) for num in net[1:-1]] + [d_out]
+        return outnet
+    else:  # in this case, we solve for hidden layer size
+        num_param = num_lin + num_quad
+        assert depth > 2
+        if depth == 3:  # linear case
+            n_hidden = num_param * fraction / (d_in + d_out)
+        else:
+            sol = np.roots([depth - 3, d_in + d_out, -num_param * fraction])
+            n_hidden = int(max(sol[0], sol[1]))
+        return [d_in] + [int(n_hidden)] * (depth - 2) + [d_out]
+
+
 def recordStep0(testerror, mdlname, txtname):
     if txtname is None:
         return

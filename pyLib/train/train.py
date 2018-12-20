@@ -136,7 +136,7 @@ class trainer(object):
             # evaluate on test set
             errtest = self.getTestLoss()
             testerror.append(errtest)
-            print('Epoch ', epoch, 'train loss ', trainerror[epoch], 'test loss ', testerror[-1])
+            print('Epoch ', epoch, 'train loss ', trainerror[epoch], 'test loss ', testerror[-1].tolist())
             # check if we have decreasing test error
             if checkTestError is None:
                 checkTestError = (epoch, errtest)
