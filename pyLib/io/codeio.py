@@ -36,5 +36,5 @@ def load_source(module_name, file_path):
         # Basically what import does when there is no loader.create_module().
         module = importlib.util.module_from_spec(spec)
         # How import initializes the module.
-        loader.exec_module(check_util)
+        loader.exec_module(module)
         return module
