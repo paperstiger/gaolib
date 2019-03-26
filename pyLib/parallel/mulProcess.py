@@ -157,6 +157,8 @@ class PoolProcess(object):
         self.queue = manager.Queue(2 * nProcess)
         self.iterable = iterable
         self.with_id = with_id
+        self.args = use_args
+        self.kwargs = kwargs
 
     def run(self, **kwargs):
         """Run the simulation in multiple processes.
@@ -196,8 +198,7 @@ class PoolProcess(object):
                 break
         for i in range(self.nProcess):
             self.queue.put(None)
-        if self.with_id:
-            self.proc[0].__call__(self.queue, 0, self.return_dict)
+        self.fun(self.queue, *self.args, **self.kwargs)
 
 
 def getTaskSplit(num, nProcess):

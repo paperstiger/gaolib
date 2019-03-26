@@ -12,6 +12,7 @@
 from .common import get3dAxis, getColorCycle, getIndAlongAxis, setFontSize
 from .common import subplots, savefig, subplots3d
 from .common import alignXAxis, alignYAxis, alignXYAxis
+from .common import fig_setup, save_fig, get_fig_size
 from .plot3d import  plot, scatter, set_axes_equal, addSphere
 from .compare import compare, compareXYZ
 import matplotlib.pyplot as plt
@@ -57,6 +58,7 @@ def setGlobalFontSize(size=14, mode=None):
     mpl.rc('legend', fontsize=SMALL_SIZE)
     mpl.rc('figure', titlesize=SMALL_SIZE)
     mpl.rcParams['text.usetex'] = True
+    mpl.rcParams['pgf.texsystem'] = 'pdflatex'
 
 
 def alignRange(*args):
