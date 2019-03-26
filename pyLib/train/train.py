@@ -9,15 +9,18 @@ import os, sys, time, datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import operator
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except:
+    import pickle
 import glob
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import Dataset
-from torchUtil import GaoNet, GaoNetBN, plotError, recordStep0
-from dataLoader import dataLoader, keyFactory, labelFactory, subFactory, unaryKeyFactory
-from torchUtil import modelLoader
+from .torchUtil import GaoNet, GaoNetBN, plotError, recordStep0
+from .dataLoader import dataLoader, keyFactory, labelFactory, subFactory, unaryKeyFactory
+from .torchUtil import modelLoader
 # from tensorboardX import SummaryWriter
 
 
@@ -133,7 +136,7 @@ class trainer(object):
             # evaluate on test set
             errtest = self.getTestLoss()
             testerror.append(errtest)
-            print('Epoch ', epoch, 'train loss ', trainerror[epoch], 'test loss ', testerror[-1])
+            print('Epoch ', epoch, 'train loss ', trainerror[epoch], 'test loss ', testerror[-1].tolist())
             # check if we have decreasing test error
             if checkTestError is None:
                 checkTestError = (epoch, errtest)

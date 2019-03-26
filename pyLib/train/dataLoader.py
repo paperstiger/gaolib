@@ -8,7 +8,10 @@ from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.sampler import SubsetRandomSampler
 import numpy as np
 import os
-import cPickle as pkl
+try:
+    import cPickle as pkl
+except:
+    import pickle as pkl
 from ..math.stat import getStandardData
 
 

@@ -114,6 +114,7 @@ def get_affinity_matrix_xy(x, y, nn_ind, norm, rm_col_one=True, maxdx=0):
     :param x: ndarray, (n_sample, dim_x) the x data matrix
     :param y: ndarray, (n_sample, dim_y) the y data matrix
     :param nn_ind: ndarray, integer, (n_sample, n_neighbors) the affinity matrix
+    :param norm: np.linalg.norm compatible value
     :param rm_col_one: bool, if we remove the first column of nn_ind to save memory
     :param maxdx: float, if not 0, then distance in x larger than this value is ignored
     :return distx: ndarray, (n_sample*n_neighbors,) the distance in x

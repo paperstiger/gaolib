@@ -19,14 +19,15 @@ from collections import OrderedDict
 import sys, os, time
 import numpy as np
 import matplotlib.pyplot as plt
-import logging
-from torchUtil import GaoNet, modelLoaderV2
-from ..math.stat import destdify, stdify
 import re
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except:
+    import pickle
+from .torchUtil import GaoNet, modelLoaderV2
+from ..math.stat import destdify, stdify
 
 
-logger = logging.getLogger(__name__)
 nameGet = re.compile(r'\/((?:.(?!\/))+)\..*$')
 name2Get = re.compile(r'(.*)_at')
 

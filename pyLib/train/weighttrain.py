@@ -8,15 +8,17 @@ import os, sys, time, datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import operator
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except:
+    import pickle
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import Dataset
-from torchUtil import GaoNet, plotError
-from dataLoader import dataLoader
-from tensorboardX import SummaryWriter
-from train import trainer, getFileName
+from .torchUtil import GaoNet, plotError
+from .dataLoader import dataLoader
+from .train import trainer, getFileName
 
 
 class weightTrainer(trainer):
