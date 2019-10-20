@@ -1,4 +1,4 @@
-# pyLib
+# gaolib
 My library which implements useful functions
 
 # Modules:
