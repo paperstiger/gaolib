@@ -1,7 +1,7 @@
 from distutils.core import setup
 from pkgutil import walk_packages
 
-import pyLib
+import gaolib
 
 def find_packages(path, prefix=""):
     yield prefix
@@ -11,10 +11,10 @@ def find_packages(path, prefix=""):
             yield name
 
 setup(
-        name='pyLib',
+        name='gaolib',
         version='0.1.1',
         author='Gao Tang',
-        author_email='gao.tang@duke.edu',
+        author_email='gaotang2@illinois.edu',
         packages=list(find_packages(pyLib.__path__, pyLib.__name__)),
         scripts=[],
         url='',
