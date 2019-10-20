@@ -15,7 +15,7 @@ setup(
         version='0.1.1',
         author='Gao Tang',
         author_email='gaotang2@illinois.edu',
-        packages=list(find_packages(pyLib.__path__, pyLib.__name__)),
+        packages=list(find_packages(gaolib.__path__, gaolib.__name__)),
         scripts=[],
         url='',
         license='LICENSE.txt',
